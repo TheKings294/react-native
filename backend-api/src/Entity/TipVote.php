@@ -14,9 +14,11 @@ class TipVote
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tipsVotes')]
     private ?int $userId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Tip::class)]
     private ?int $tipId = null;
 
     #[ORM\Column(type: 'VoteType',length: 255)]

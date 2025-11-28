@@ -14,9 +14,13 @@ class Comment
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $userId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Tip::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $tipId = null;
 
     #[ORM\Column(length: 255)]

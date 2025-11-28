@@ -14,9 +14,11 @@ class FavoritePlace
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'favoritesPlaces')]
     private ?int $userId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Place::class)]
     private ?int $placeId = null;
 
     #[ORM\Column(options: ['default' => 'CURENT_TIMESTAMP'])]

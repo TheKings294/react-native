@@ -14,9 +14,13 @@ class RoadbookStop
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Roadbook::class, inversedBy: 'roadbookPlace')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $roadbookId = null;
 
     #[ORM\Column(nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Place::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?int $placeId = null;
 
     #[ORM\Column(length: 255)]

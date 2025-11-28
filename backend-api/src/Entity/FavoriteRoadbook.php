@@ -14,9 +14,13 @@ class FavoriteRoadbook
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'favoriteRoadbooks')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $userId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Roadbook::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $roadbookId = null;
 
     #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]

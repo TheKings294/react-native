@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -43,6 +44,33 @@ class User
 
     #[ORM\Column(options: ['default' => true])]
     private ?bool $isProfilePublic = null;
+
+    #[ORM\OneToMany(targetEntity: FavoritePlace::class, mappedBy: 'favoritesPlaces')]
+    private Collection $favoritePlaces;
+
+    #[ORM\OneToMany(targetEntity: Follow::class, mappedBy: 'follower')]
+    private Collection $following;
+
+    #[ORM\OneToMany(targetEntity: Follow::class, mappedBy: 'following')]
+    private Collection $followers;
+
+    #[ORM\OneToMany(targetEntity: Roadbook::class, mappedBy: 'roadbooks')]
+    private Collection $roadBooks;
+
+    #[ORM\OneToMany(targetEntity: FavoriteRoadbook::class, mappedBy: 'favoriteRoadbooks')]
+    private Collection $favoriteRoadbooks;
+
+    #[ORM\OneToMany(targetEntity: PlaceRating::class, mappedBy: 'rater')]
+    private Collection $placesRated;
+
+    #[ORM\OneToMany(targetEntity: Tip::class, mappedBy: 'tips')]
+    private Collection $tips;
+
+    #[ORM\OneToMany(targetEntity: TipVote::class, mappedBy: 'tipsVotes')]
+    private Collection $tipsVoted;
+
+    #[ORM\OneToMany(targetEntity: SharedRoadbook::class, mappedBy: 'sharedBy')]
+    private Collection $roadBooksShared;
 
     public function getId(): ?int
     {

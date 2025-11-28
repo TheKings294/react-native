@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PlaceRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
@@ -57,6 +58,9 @@ class Place
 
     #[ORM\Column(options: ["default" => 0])]
     private ?int $totalTips = null;
+
+    #[ORM\OneToMany(targetEntity: PlaceRating::class, mappedBy: 'rate')]
+    private Collection $ratings;
 
     public function getId(): ?int
     {

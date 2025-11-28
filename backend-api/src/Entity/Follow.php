@@ -14,9 +14,13 @@ class Follow
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'follower')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $followerId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'following')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $followingId = null;
 
     #[ORM\Column(options: ['default' => "CURRENT_TIMESTAMP"])]

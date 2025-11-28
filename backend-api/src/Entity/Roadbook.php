@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RoadbookRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RoadbookRepository::class)]
@@ -14,6 +15,8 @@ class Roadbook
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'roadbooks')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $userId = null;
 
     #[ORM\Column(length: 255)]
@@ -63,6 +66,9 @@ class Roadbook
 
     #[ORM\Column(options: ["default" => 0])]
     private ?int $favoriteCount = null;
+
+    #[ORM\OneToMany(targetEntity: RoadbookStop::class, mappedBy: 'roadbookPlace')]
+    private Collection $roadBooksStops;
 
     public function getId(): ?int
     {

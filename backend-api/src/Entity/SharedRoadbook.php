@@ -14,12 +14,18 @@ class SharedRoadbook
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Roadbook::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $roadbookId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sharedWith')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $sharedWithUserId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sharedBy')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $sharedByUserId = null;
 
     #[ORM\Column(options: ["default" => false])]

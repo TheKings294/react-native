@@ -14,9 +14,13 @@ class Tip
     private ?int $id = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tips')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $userId = null;
 
     #[ORM\Column]
+    #[ORM\ManyToOne(targetEntity: Place::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?int $placeId = null;
 
     #[ORM\Column(length: 255)]
