@@ -32,7 +32,7 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $passwordHash = null;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
@@ -41,7 +41,7 @@ class User
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $lastLoginAt = null;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => true])]
     private ?bool $isProfilePublic = null;
 
     public function getId(): ?int
