@@ -16,28 +16,53 @@ class PlaceRepository extends ServiceEntityRepository
         parent::__construct($registry, Place::class);
     }
 
-    //    /**
-    //     * @return Place[] Returns an array of Place objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function save(Place $place, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($place);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 
-    //    public function findOneBySomeField($value): ?Place
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function remove(Place $place, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($place);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function findByLocation(float $latitude, float $longitude, float $radius = 10): array
+    {
+        // Find places within a radius (in kilometers)
+        $qb = $this->createQueryBuilder('p');
+
+        return $qb
+            ->where('(6371 * acos(cos(radians(:lat)) * cos(radians(p.latitude)) * cos(radians(p.longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(p.latitude)))) <= :radius')
+            ->setParameter('lat', $latitude)
+            ->setParameter('lng', $longitude)
+            ->setParameter('radius', $radius)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByPlaceType(string $placeType): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.placeType = :type')
+            ->setParameter('type', $placeType)
+            ->orderBy('p.averageRating', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByCity(string $city): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.city = :city')
+            ->setParameter('city', $city)
+            ->orderBy('p.averageRating', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

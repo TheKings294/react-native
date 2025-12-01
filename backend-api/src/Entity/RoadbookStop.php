@@ -62,7 +62,7 @@ class RoadbookStop
     #[ORM\Column(nullable: true)]
     private ?float $expenses = null;
 
-    #[ORM\Column(options: ["default" => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]

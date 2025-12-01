@@ -1,5 +1,8 @@
 doctrine:
     dbal:
+        mapping_types:
+            enum: string
+
         url: '%env(resolve:DATABASE_URL)%'
 
         types:

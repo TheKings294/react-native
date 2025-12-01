@@ -52,7 +52,7 @@ class Roadbook
     #[ORM\Column(length: 255, nullable: true, options: ["default" => 'default'])]
     private ?string $theme = null;
 
-    #[ORM\Column(options: ["default" => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]

@@ -24,7 +24,7 @@ class TipVote
     #[ORM\Column(type: 'VoteType',length: 255)]
     private ?string $voteType = null;
 
-    #[ORM\Column(options: ["default" => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int

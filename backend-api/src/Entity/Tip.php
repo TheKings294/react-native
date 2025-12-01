@@ -41,7 +41,7 @@ class Tip
     #[ORM\Column(options: ['default' => false])]
     private ?bool $isPinned = null;
 
-    #[ORM\Column(options: ['default' => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]

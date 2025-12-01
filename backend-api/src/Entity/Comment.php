@@ -26,7 +26,7 @@ class Comment
     #[ORM\Column(length: 255)]
     private ?string $content = null;
 
-    #[ORM\Column(options: ["default" => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]

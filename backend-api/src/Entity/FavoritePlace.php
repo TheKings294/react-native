@@ -21,7 +21,7 @@ class FavoritePlace
     #[ORM\ManyToOne(targetEntity: Place::class)]
     private ?int $placeId = null;
 
-    #[ORM\Column(options: ['default' => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int
