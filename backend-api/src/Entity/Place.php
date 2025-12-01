@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\PlaceRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
 class Place
@@ -21,9 +23,11 @@ class Place
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\Range(min: -90, max: 90)]
     private ?float $latitude = null;
 
     #[ORM\Column]
+    #[Assert\Range(min: -90, max: 90)]
     private ?float $longitude = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -44,11 +48,12 @@ class Place
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $tags = null;
 
-    #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTime $updatedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?float $averageRating = null;
@@ -61,6 +66,19 @@ class Place
 
     #[ORM\OneToMany(targetEntity: PlaceRating::class, mappedBy: 'rate')]
     private Collection $ratings;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {

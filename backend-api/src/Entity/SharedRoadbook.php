@@ -34,7 +34,7 @@ class SharedRoadbook
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
-    #[ORM\Column(options: ["default" => 'CURENT_TIMESTAMP'])]
+    #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int
