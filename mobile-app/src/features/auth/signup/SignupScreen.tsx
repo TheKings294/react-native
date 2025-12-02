@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function SignupScreen() {
@@ -18,11 +18,23 @@ export default function SignupScreen() {
       <Text style={styles.or}>OU</Text>
       
       <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>S'inscrire avec Apple</Text>
+        <View style={styles.socialContent}>
+          <View style={styles.socialIconWrap}>
+            <Image source={require('../../../../assets/images/icons/apple-icon.png')} style={styles.socialIcon} />
+          </View>
+          <Text style={styles.socialButtonText}>S'inscrire avec Apple</Text>
+          <View style={styles.socialIconWrap} />
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>S'inscrire avec Google</Text>
+        <View style={styles.socialContent}>
+          <View style={styles.socialIconWrap}>
+            <Image source={require('../../../../assets/images/icons/google-icon.png')} style={styles.socialIcon} />
+          </View>
+          <Text style={styles.socialButtonText}>S'inscrire avec Google</Text>
+          <View style={styles.socialIconWrap} />
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.back()}>
@@ -41,6 +53,9 @@ const styles = StyleSheet.create({
   buttonText: { fontWeight: 'bold' },
   or: { textAlign: 'center', marginVertical: 10, color: '#999' },
   socialButton: { padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', alignItems: 'center', marginBottom: 10, backgroundColor: '#fff' },
-  socialButtonText: { fontWeight: '500' },
+  socialButtonText: { flex: 1, fontWeight: '500', color: '#000', textAlign: 'center' },
+  socialContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', paddingLeft: 55 },
+  socialIconWrap: { width: 28, alignItems: 'center' },
+  socialIcon: { width: 20, height: 20, resizeMode: 'contain' },
   link: { textAlign: 'center', marginTop: 20, color: 'blue' },
 });
