@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
@@ -22,15 +22,24 @@ export default function LoginScreen() {
       <Text style={styles.or}>OU</Text>
       
       <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#1877F2' }]}>
-        <Text style={styles.socialButtonText}>S'inscrire avec Facebook</Text>
+        <View style={styles.socialContent}>
+          <Image source={require('../../../../assets/images/icons/facebook-icon.png')} style={styles.socialIcon} />
+          <Text style={[styles.socialButtonText, styles.socialTextLight]}>S'inscrire avec Facebook</Text>
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>S'inscrire avec Apple</Text>
+        <View style={styles.socialContent}>
+          <Image source={require('../../../../assets/images/icons/apple-icon.png')} style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>S'inscrire avec Apple</Text>
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>S'inscrire avec Google</Text>
+        <View style={styles.socialContent}>
+          <Image source={require('../../../../assets/images/icons/google-icon.png')} style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>S'inscrire avec Google</Text>
+        </View>
       </TouchableOpacity>
 
        <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
@@ -49,6 +58,9 @@ const styles = StyleSheet.create({
   buttonText: { fontWeight: 'bold' },
   or: { textAlign: 'center', marginVertical: 10, color: '#999' },
   socialButton: { padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', alignItems: 'center', marginBottom: 10, backgroundColor: '#fff' },
-  socialButtonText: { fontWeight: '500' },
+  socialButtonText: { fontWeight: '500', color: '#000' },
+  socialTextLight: { color: '#fff' },
+  socialContent: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  socialIcon: { width: 20, height: 20, resizeMode: 'contain' },
   link: { textAlign: 'center', marginTop: 20, color: 'blue' },
 });
