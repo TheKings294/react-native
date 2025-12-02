@@ -5,7 +5,6 @@ import { Pressable, View } from 'react-native';
 
 import { Colors } from '@/constants/theme'; // I might need to check if this exists or create it
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
