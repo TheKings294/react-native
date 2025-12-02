@@ -9,7 +9,11 @@ export default function LoginScreen() {
       <Text style={styles.title}>Bon retour !</Text>
       <Text style={styles.subtitle}>Choisissez la méthode que vous avez utilisé lors de la création de votre compte</Text>
       
-      <TextInput placeholder="E-mail" style={styles.input} />
+      <TextInput
+        placeholder="E-mail"
+        placeholderTextColor="#000"
+        style={styles.input}
+      />
       
       <TouchableOpacity style={styles.button} onPress={() => router.replace('/(tabs)/library')}>
         <Text style={styles.buttonText}>Se connecter par e-mail</Text>
