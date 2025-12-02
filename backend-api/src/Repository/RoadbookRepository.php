@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Roadbook;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @extends ServiceEntityRepository<Roadbook>

@@ -9,6 +9,7 @@ use App\Repository\RoadbookRepository;
 use App\Repository\PlaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -112,7 +113,7 @@ class RoadbookController extends AbstractController
     #[OA\Response(
         response: 201,
         description: 'Roadbook created successfully',
-        content: new OA\JsonContent(ref: new Model(type: Roadbook::class, groups: ['roadbook:read']))
+        content: new OA\JsonContent(ref: new Model(type: Roadbook::class, groups: ['roadbook:create']))
     )]
     #[OA\Response(response: 400, description: 'Invalid input')]
     #[OA\Response(response: 401, description: 'Unauthorized')]
@@ -124,7 +125,7 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
-        $roadbook->setUser($user);
+        $roadbook->setUserId($user);
 
         // Add places if provided
         if (isset($data['places']) && is_array($data['places'])) {
