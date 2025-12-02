@@ -7,7 +7,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Image source={require('../../../../assets/images/icons/spotchat-icon.jpeg')} style={styles.logo} />
-      <Text style={styles.title}>Bienvenue sur SpotChat</Text>
+      <Text style={styles.title}>Bon retour !</Text>
       <Text style={styles.subtitle}>Choisissez la méthode que vous avez utilisé lors de la création de votre compte</Text>
       
       <TextInput
