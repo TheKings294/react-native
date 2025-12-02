@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.5",
+        "nelmio/api-doc-bundle": "^5.8",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/console": "7.3.*",
@@ -38,7 +39,9 @@
             "App\\": "src/",
             "App\\Entity\\": "src/Entity",
             "App\\Repository\\" : "src/Repository",
-            "App\\Controller\\" : "src/Controller"
+            "App\\Controller\\" : "src/Controller",
+            "App\\Security\\" : "src/Security",
+            "App\\Doctrine\\" : "src/Doctrine"
         }
     },
     "autoload-dev": {
