@@ -16,28 +16,63 @@ class RoadbookRepository extends ServiceEntityRepository
         parent::__construct($registry, Roadbook::class);
     }
 
-    //    /**
-    //     * @return Roadbook[] Returns an array of Roadbook objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function save(Roadbook $roadbook, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($roadbook);
 
-    //    public function findOneBySomeField($value): ?Roadbook
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Roadbook $roadbook, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($roadbook);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * Find all roadbooks by user
+     */
+    public function findByUser(User $user): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find roadbook by id and user
+     */
+    public function findOneByIdAndUser(int $id, User $user): ?Roadbook
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.id = :id')
+            ->andWhere('r.user = :user')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Search roadbooks by title
+     */
+    public function searchByTitle(string $query, User $user): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.title LIKE :query')
+            ->andWhere('r.user = :user')
+            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('user', $user)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

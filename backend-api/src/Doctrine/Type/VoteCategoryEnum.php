@@ -2,9 +2,7 @@
 
 namespace App\Doctrine\Type;
 
-use App\Doctrine\Type\PostgresEnumType;
-
-class VoteTypeEnum extends PostgresEnumType
+class VoteCategoryEnum extends PostgresEnumType
 {
     public const NAME = 'VoteType';
 

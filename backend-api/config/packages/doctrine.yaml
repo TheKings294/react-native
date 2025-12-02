@@ -8,7 +8,7 @@ doctrine:
         types:
             PlaceType: App\Doctrine\Type\PlaceTypeEnum
             TipCategory: App\Doctrine\Type\TipCategoryEnum
-            VoteType: App\Doctrine\Type\VoteTypeEnum
+            VoteType: App\Doctrine\Type\VoteCategoryEnum
             BookTemplate: App\Doctrine\Type\BookTemplateEnum
 
         profiling_collect_backtrace: '%kernel.debug%'

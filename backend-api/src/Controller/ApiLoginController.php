@@ -10,7 +10,7 @@ use App\Entity\User;
 
 class ApiLoginController extends AbstractController
 {
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    #[Route('/api/auth/login', name: 'api_login', methods: ['POST'])]
     public function login(#[CurrentUser] ?User $user): Response
     {
         if (null === $user) {
