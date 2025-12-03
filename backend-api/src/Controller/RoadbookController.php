@@ -163,6 +163,10 @@ class RoadbookController extends AbstractController
         description: 'Updates an existing roadbook',
         summary: 'Update a roadbook',
     )]
+    #[OA\Patch(
+        description: 'Updates an existing roadbook',
+        summary: 'Update a roadbook',
+    )]
     #[OA\Parameter(
         name: 'id',
         description: 'Roadbook ID',
