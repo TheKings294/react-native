@@ -5,8 +5,11 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
-    #esi: true
-    #fragments: true
+    request:
+        formats:
+            json: [ 'application/json' ]
+
+    error_controller: App\Controller\ErrorController::preview
 
 when@test:
     framework:

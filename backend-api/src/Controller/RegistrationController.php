@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
 use OpenApi\Attributes\Response as Res;
 use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Property;
+use function Symfony\Component\Clock\now;
 
 class RegistrationController extends AbstractController
 {
@@ -159,6 +160,10 @@ class RegistrationController extends AbstractController
                 }
                 return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
             }
+
+            $user->setRoles(['ROLE_USER']);
+            $user->setCreatedAt(new \DateTimeImmutable());
+            $user->setUpdatedAt(new \DateTimeImmutable());
 
             // Save user
             $this->userRepository->save($user, true);

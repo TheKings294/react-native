@@ -1,10 +1,44 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import {useState} from "react";
+import {RoadBook} from "@/model/RaodBook"
+import RoadBookList from "@/components/roadbook-list";
 
 export default function LibraryScreen() {
   const router = useRouter();
+  const [tab, setTab] = useState(1);
+  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
+      {
+          id: 1,
+          userId: 1,
+          title: "Hello",
+          description: "Hello",
+          coverImageURL: "https://picsum.photos/200/300",
+          startDate: new Date("2025-11-29"),
+          endDate: new Date("2025-12-29"),
+          countries: [
+              "France",
+              "Angleterre"
+          ],
+          tags: [
+              "Van",
+              "Wine",
+          ],
+          isPublished: false,
+          isPublic: false,
+          theme: [
+              "New",
+              "FavoritePlace",
+          ],
+          createdAt: new Date("2025-11-29"),
+          updatedAt: new Date("2025-11-29"),
+          viewCount: 1,
+          favoriteCount: 0,
+          places: []
+      },
+  ]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -33,11 +67,11 @@ export default function LibraryScreen() {
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity style={[styles.tab, styles.activeTab]}>
-            <Text style={styles.tabTextActive}>Abonnements</Text>
+        <TouchableOpacity style={[styles.tab, tab === 1 && styles.activeTab]} onPress={() => setTab(1)}>
+            <Text style={tab === 1 ? styles.tabTextActive : styles.tabText}>Abonnements</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tab}>
-            <Text style={styles.tabText}>Collaborations</Text>
+        <TouchableOpacity style={[styles.tab, tab === 2 && styles.activeTab]} onPress={() => setTab(2)}>
+            <Text style={tab === 2 ? styles.tabTextActive : styles.tabText}>Mes roadBooks</Text>
         </TouchableOpacity>
       </View>
 
@@ -49,20 +83,47 @@ export default function LibraryScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.emptyState}>
-            <View style={styles.emptyIconContainer}>
-                 <FontAwesome name="user" size={40} color="black" />
-                 <View style={styles.hashtagBubble}>
-                     <Text style={styles.hashtagText}>#</Text>
-                 </View>
-            </View>
-            <Text style={styles.emptyText}>Les cartes que vous suivez seront accessibles d'ici</Text>
-            
-             <TouchableOpacity style={styles.addFriendButton}>
-                <FontAwesome name="user-plus" size={16} color="black" style={{marginRight: 10}} />
-                <Text>Ajouter des amis</Text>
-            </TouchableOpacity>
-        </View>
+          {
+              tab === 1 ?
+                  <View style={styles.emptyState}>
+                      <View style={styles.emptyIconContainer}>
+                          <FontAwesome name="user" size={40} color="black" />
+                          <View style={styles.hashtagBubble}>
+                              <Text style={styles.hashtagText}>#</Text>
+                          </View>
+                      </View>
+                      <Text style={styles.emptyText}>Les cartes que vous suivez seront accessibles d ici</Text>
+
+                      <TouchableOpacity style={styles.addFriendButton}>
+                          <FontAwesome name="user-plus" size={16} color="black" style={{marginRight: 10}} />
+                          <Text>Ajouter des amis</Text>
+                      </TouchableOpacity>
+                  </View>
+                  :
+                  <View style={styles.emptyState}>
+                      {
+                          roadBookList.length === 0 ?
+                              <>
+                                  <View style={styles.emptyIconContainer}>
+                                      <FontAwesome name="book" size={40} color="black" />
+                                      <View style={styles.hashtagBubble}>
+                                          <Text style={styles.hashtagText}>#</Text>
+                                      </View>
+                                  </View>
+                                  <Text style={styles.emptyText}>Vos roads books se retrouve ici</Text>
+
+                                  <TouchableOpacity style={styles.addFriendButton}>
+                                      <FontAwesome name="book" size={16} color="black" style={{marginRight: 10}} />
+                                      <Text>Crée un road book</Text>
+                                  </TouchableOpacity>
+                              </>
+                              :
+                              <>
+                                  <RoadBookList listRoadBook={roadBookList} />
+                              </>
+                      }
+                  </View>
+          }
       </ScrollView>
     </SafeAreaView>
   );
