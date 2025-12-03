@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,11 @@ use OpenApi\Attributes as OA;
 
 class ApiLoginController extends AbstractController
 {
+    private JWTTokenManagerInterface $jwtManager;
+
+    public function __construct(JWTTokenManagerInterface $jwtManager) {
+        $this->jwtManager = $jwtManager;
+    }
     #[Route('/api/auth/login', name: 'api_login', methods: ['POST'])]
     #[OA\Post(
         path: '/api/auth/login',
@@ -68,7 +74,7 @@ class ApiLoginController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $token = "Hello";
+        $token = $this->jwtManager->create($user);
 
         return new JsonResponse([
             'message' => 'Login successful',

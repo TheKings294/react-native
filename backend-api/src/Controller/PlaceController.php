@@ -11,6 +11,7 @@ use App\Entity\Place;
 use App\Repository\PlaceRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -95,6 +96,7 @@ class PlaceController extends AbstractController
             )
         ]
     )]
+    #[IsGranted('ROLE_USER')]
     public function list(Request $request): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
@@ -161,6 +163,7 @@ class PlaceController extends AbstractController
             ),
         ]
     )]
+    #[IsGranted('ROLE_USER')]
     public function show(int $id): JsonResponse
     {
         $place = $this->placeRepository->find($id);
@@ -217,6 +220,7 @@ class PlaceController extends AbstractController
             )
         ]
     )]
+    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
         try {
@@ -313,6 +317,7 @@ class PlaceController extends AbstractController
             )
         ]
     )]
+    #[IsGranted('ROLE_USER')]
     public function update(int $id, Request $request): JsonResponse
     {
         $place = $this->placeRepository->find($id);
@@ -447,6 +452,7 @@ class PlaceController extends AbstractController
             )
         ]
     )]
+    #[IsGranted('ROLE_USER')]
     public function search(Request $request): JsonResponse
     {
         $query = $request->query->get('q', '');
