@@ -41,8 +41,8 @@ class RoadbookRepository extends ServiceEntityRepository
     public function findByUser(User $user): array
     {
         return $this->createQueryBuilder('r')
-            ->andWhere('r.user = :user')
-            ->setParameter('user', $user)
+            ->andWhere('r.userId = :user')
+            ->setParameter('user', $user->getId())
             ->orderBy('r.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
