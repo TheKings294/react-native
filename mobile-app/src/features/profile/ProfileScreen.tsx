@@ -1,16 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const username = user?.username ? `@${user.username}` : '@inconnu';
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
+  const bioText = user?.bio || "Ajoutez une bio pour en dire plus sur vous";
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
          <TouchableOpacity onPress={() => router.back()}>
-             <Text style={styles.headerText}>@Mourad9101 v</Text>
+             <Text style={styles.headerText}>{username}</Text>
          </TouchableOpacity>
          <View style={styles.headerIcons}>
              <FontAwesome name="user-plus" size={20} color="black" style={{marginRight: 15}} />
@@ -39,8 +45,9 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.bioSection}>
-          <Text style={styles.name}>Mourad</Text>
-          <Text style={styles.bioPlaceholder}>Ajoutez une bio pour en dire plus sur vous</Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.bioPlaceholder}>{bioText}</Text>
+          {user?.email ? <Text style={styles.email}>{user.email}</Text> : null}
       </View>
 
       <View style={styles.actionButtons}>
@@ -49,6 +56,12 @@ export default function ProfileScreen() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>Partager ma carte</Text>
+          </TouchableOpacity>
+      </View>
+
+      <View style={styles.logoutContainer}>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+              <Text style={styles.logoutText}>Se déconnecter</Text>
           </TouchableOpacity>
       </View>
 
@@ -73,4 +86,7 @@ const styles = StyleSheet.create({
   actionButtons: { flexDirection: 'row', paddingHorizontal: 20, gap: 10 },
   button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
   buttonText: { fontWeight: '500' },
+  logoutContainer: { paddingHorizontal: 20, marginTop: 30 },
+  logoutButton: { backgroundColor: '#ddd', padding: 12, borderRadius: 8, alignItems: 'center' },
+  logoutText: { fontWeight: '600' },
 });

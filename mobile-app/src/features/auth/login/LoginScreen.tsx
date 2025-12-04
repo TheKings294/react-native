@@ -1,8 +1,39 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { login } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setAuthData } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogin = async () => {
+    setError(null);
+    if (!email || !password) {
+      setError('Merci de renseigner votre e-mail et mot de passe.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await login(email.trim(), password);
+      if (!response.user?.token) {
+        throw new Error('Token manquant dans la réponse du serveur.');
+      }
+      await setAuthData(response.user.token, response.user);
+      router.replace('/(tabs)/library');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Une erreur s'est produite.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -14,10 +45,24 @@ export default function LoginScreen() {
         placeholder="E-mail"
         placeholderTextColor="#000"
         style={styles.input}
+        value={email}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        onChangeText={setEmail}
+      />
+      <TextInput
+        placeholder="Mot de passe"
+        placeholderTextColor="#000"
+        secureTextEntry
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
       />
       
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('/(tabs)/library')}>
-        <Text style={styles.buttonText}>Se connecter par e-mail</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <TouchableOpacity style={[styles.button, isSubmitting && styles.buttonDisabled]} onPress={handleLogin} disabled={isSubmitting}>
+        {isSubmitting ? <ActivityIndicator color="#000" /> : <Text style={styles.buttonText}>Se connecter par e-mail</Text>}
       </TouchableOpacity>
       
       <Text style={styles.or}>OU</Text>
@@ -67,6 +112,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ddd', padding: 15, borderRadius: 10, marginBottom: 15 },
   button: { backgroundColor: '#ddd', padding: 15, borderRadius: 10, alignItems: 'center', marginBottom: 20 },
   buttonText: { fontWeight: 'bold' },
+  buttonDisabled: { opacity: 0.6 },
   or: { textAlign: 'center', marginVertical: 10, color: '#999' },
   socialButton: { padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', alignItems: 'center', marginBottom: 10, backgroundColor: '#fff' },
   socialButtonText: { flex: 1, fontWeight: '500', color: '#000', textAlign: 'center' },
@@ -75,4 +121,5 @@ const styles = StyleSheet.create({
   socialIconWrap: { width: 28, alignItems: 'center' },
   socialIcon: { width: 20, height: 20, resizeMode: 'contain' },
   link: { textAlign: 'center', marginTop: 20, color: 'blue' },
+  error: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });
