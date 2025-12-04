@@ -16,12 +16,12 @@ import {
 } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
+import { useAuth } from "@/context/AuthContext";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
-type ItemProps = {
-  label: string;
+type ItemProps = {label: string;
   description?: string;
   onPress?: () => void;
   right?: React.ReactNode;
@@ -102,6 +102,7 @@ const Section = ({
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const params = useLocalSearchParams(); // ✅ récupère ?lang=en etc.
+  const { logout } = useAuth();
 
   // Dark mode global
   const { mode, setMode } = useThemeMode();
@@ -178,8 +179,9 @@ export default function SettingsScreen() {
       {
         text: "Se déconnecter",
         style: "destructive",
-        onPress: () => {
-          router.replace("/");
+        onPress: async () => {
+          await logout();
+          router.replace("/(auth)/login");
         },
       },
     ]);
