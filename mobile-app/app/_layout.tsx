@@ -3,10 +3,9 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeModeProvider, useThemeMode } from "@/providers/ThemeModeProvider";
-import { LanguageProvider, useLanguage } from "@/providers/LanguageProvider"; // ✅ AJOUT
+import { LanguageProvider, useLanguage } from "@/providers/LanguageProvider";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -14,11 +13,11 @@ export const unstable_settings = {
 
 function NavigationRoot() {
   const { scheme } = useThemeMode();
-  const { t } = useLanguage(); // ✅ AJOUT (pour header traduit)
+  const { t } = useLanguage();
 
   return (
     <AuthProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
