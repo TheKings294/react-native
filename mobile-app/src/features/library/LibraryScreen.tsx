@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
+import {useTheme} from "@react-navigation/native";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LibraryScreen() {
   const { user } = useAuth();
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
+  const {colors} = useTheme();
   const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
       {
           id: 1,

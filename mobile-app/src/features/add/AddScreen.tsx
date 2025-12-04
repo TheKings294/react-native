@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
@@ -11,12 +10,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-import { useLanguage } from "@/providers/LanguageProvider";
+import {Section} from "@/components/ui/section_ui";
+import {Item} from "@/components/ui/item_ui";
 
 export default function LibraryScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { t } = useLanguage();
 
   return (
     <SafeAreaView
@@ -61,78 +60,15 @@ export default function LibraryScreen() {
         </View>
       </View>
 
-      {/* Tabs */}
-      <View style={[styles.tabContainer, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            styles.activeTab,
-            { borderBottomColor: colors.primary },
-          ]}
-        >
-          <Text style={[styles.tabTextActive, { color: colors.text }]}>
-            {t("library.titleTab1")}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab}>
-          <Text style={[styles.tabText, { color: colors.text, opacity: 0.6 }]}>
-            {t("library.titleTab2")}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Search */}
-      <View style={[styles.searchContainer, { backgroundColor: colors.card }]}>
-        <FontAwesome
-          name="search"
-          size={16}
-          color={colors.text}
-          style={[styles.searchIcon, { opacity: 0.5 }]}
-        />
-        <TextInput
-          placeholder={t("library.searchPlaceholder")}
-          placeholderTextColor={colors.text + "99"}
-          style={[styles.searchInput, { color: colors.text }]}
-        />
-      </View>
-
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.emptyState}>
-          <View style={styles.emptyIconContainer}>
-            <FontAwesome name="user" size={40} color={colors.text} />
-
-            <View
-              style={[
-                styles.hashtagBubble,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: colors.text,
-                },
-              ]}
-            >
-              <Text style={[styles.hashtagText, { color: colors.text }]}>#</Text>
-            </View>
-          </View>
-
-          <Text style={[styles.emptyText, { color: colors.text, opacity: 0.8 }]}>
-            {t("library.emptyText")}
-          </Text>
-
-          <TouchableOpacity
-            style={[styles.addFriendButton, { backgroundColor: colors.card }]}
-          >
-            <FontAwesome
-              name="user-plus"
-              size={16}
-              color={colors.text}
-              style={{ marginRight: 10 }}
-            />
-            <Text style={{ color: colors.text }}>
-              {t("library.addFriends")}
-            </Text>
-          </TouchableOpacity>
+        <View>
+            <Section
+            title={"Creation"}>
+                <Item label={"RoadBook"} description={"Creation d'un roadbook"}
+                      onPress={() => router.push("/form-new-roadbook")} />
+                <Item label={"Point"} description={"Creation d'un lieux"} />
+            </Section>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -181,10 +117,7 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1 },
 
   content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingBottom: 100,
+    marginHorizontal: 15,
   },
   emptyState: { alignItems: "center", marginTop: 50 },
   emptyIconContainer: { marginBottom: 20, alignItems: "center" },
