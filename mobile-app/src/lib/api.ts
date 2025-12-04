@@ -94,6 +94,29 @@ async function apiPatch<T>(path: string, body: JsonMap, authToken?: string): Pro
   return data as T;
 }
 
+async function apiGet<T>(path: string, authToken?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+  };
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'GET',
+    headers,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(resolveErrorMessage(data, response.status));
+  }
+
+  return data as T;
+}
+
 export type LoginResponse = {
   message: string;
   user: {
@@ -166,3 +189,53 @@ export async function updateUserPassword(payload: { oldPassword: string; newPass
   }
   return apiPatch<{ message: string }>('/api/user/update-password', payload, token);
 }
+
+export async function createRoadbook(payload: {
+  title: string;
+  description?: string | null;
+  coverImage?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  countries?: string[];
+  tags?: string[];
+  isPublished?: boolean;
+  isPublic?: boolean;
+  template?: string;
+  theme?: string | null;
+  places?: number[];
+}) {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error('Utilisateur non authentifié.');
+  }
+  return apiPost('/api/roadbooks', payload, token);
+}
+
+export async function getRoadbooks() {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error('Utilisateur non authentifié.');
+  }
+  return apiGet<RoadbookResponse[]>('/api/roadbooks', token);
+}
+
+export type RoadbookResponse = {
+  id: number;
+  userId: number;
+  title: string;
+  description?: string | null;
+  coverImage?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  countries?: string[] | null;
+  tags?: string[] | null;
+  isPublished?: boolean | null;
+  isPublic?: boolean | null;
+  template?: string | null;
+  theme?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  viewCount?: number | null;
+  favoriteCount?: number | null;
+  places?: unknown[];
+};

@@ -55,9 +55,9 @@ class RoadbookRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('r')
             ->andWhere('r.id = :id')
-            ->andWhere('r.user = :user')
+            ->andWhere('r.userId = :user')
             ->setParameter('id', $id)
-            ->setParameter('user', $user)
+            ->setParameter('user', $user->getId())
             ->getQuery()
             ->getOneOrNullResult();
     }

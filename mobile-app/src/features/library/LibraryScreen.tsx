@@ -2,12 +2,13 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
 import { useTheme } from "@react-navigation/native";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { getRoadbooks, RoadbookResponse } from "@/lib/api";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -17,36 +18,55 @@ export default function LibraryScreen() {
   const displayName = user?.displayName || user?.username || 'Utilisateur';
   const { colors } = useTheme();
   const { t } = useLanguage();
-  const [roadBookList] = useState<RoadBook[]>([
-      {
-          id: 1,
-          userId: 1,
-          title: "Hello",
-          description: "Hello",
-          coverImageURL: "https://picsum.photos/200/300",
-          startDate: new Date("2025-11-29"),
-          endDate: new Date("2025-12-29"),
-          countries: [
-              "France",
-              "Angleterre"
-          ],
-          tags: [
-              "Van",
-              "Wine",
-          ],
-          isPublished: false,
-          isPublic: false,
-          theme: [
-              "New",
-              "FavoritePlace",
-          ],
-          createdAt: new Date("2025-11-29"),
-          updatedAt: new Date("2025-11-29"),
-          viewCount: 1,
-          favoriteCount: 0,
-          places: []
-      },
-  ]);
+  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getRoadbooks();
+        if (!mounted) return;
+        const mapped = data.map(mapRoadbookResponse);
+        setRoadBookList(mapped);
+      } catch (e) {
+        if (!mounted) return;
+        const msg = e instanceof Error ? e.message : t("common.errorAuth");
+        setError(msg || null);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [t]);
+
+  const mapRoadbookResponse = (rb: RoadbookResponse): RoadBook => ({
+    id: rb.id,
+    userId: rb.userId,
+    title: rb.title,
+    description: rb.description || '',
+    coverImage: rb.coverImage || null,
+    coverImageURL: rb.coverImage || null,
+    startDate: rb.startDate ? new Date(rb.startDate) : null,
+    endDate: rb.endDate ? new Date(rb.endDate) : null,
+    countries: rb.countries || [],
+    tags: rb.tags || [],
+    isPublished: Boolean(rb.isPublished),
+    isPublic: rb.isPublic ?? true,
+    template: rb.template || undefined,
+    theme: rb.theme || undefined,
+    createdAt: rb.createdAt ? new Date(rb.createdAt) : null,
+    updatedAt: rb.updatedAt ? new Date(rb.updatedAt) : null,
+    viewCount: rb.viewCount ?? 0,
+    favoriteCount: rb.favoriteCount ?? 0,
+    places: [],
+  });
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -111,47 +131,28 @@ export default function LibraryScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-          {
-              tab === 1 ?
-                  <View style={styles.emptyState}>
-                      <View style={styles.emptyIconContainer}>
-                          <FontAwesome name="user" size={40} color={colors.text} />
-                          <View style={styles.hashtagBubble}>
-                              <Text style={[styles.hashtagText, { color: colors.text }]} >#</Text>
-                          </View>
-                      </View>
-                      <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
-
-                      <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
-                          <FontAwesome name="user-plus" size={16} color={colors.text} style={{marginRight: 10}} />
-                          <Text style={{ color: colors.text }}>{t("library.addFriends")}</Text>
-                      </TouchableOpacity>
-                  </View>
-                  :
-                  <View style={styles.emptyState}>
-                      {
-                          roadBookList.length === 0 ?
-                              <>
-                                  <View style={styles.emptyIconContainer}>
-                                      <FontAwesome name="book" size={40} color={colors.text} />
-                                      <View style={styles.hashtagBubble}>
-                                          <Text style={[styles.hashtagText, { color: colors.text }]}>#</Text>
-                                      </View>
-                                  </View>
-                                  <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
-
-                                  <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
-                                      <FontAwesome name="book" size={16} color={colors.text} style={{marginRight: 10}} />
-                                      <Text style={{ color: colors.text }}>{t("add.createRoadbook")}</Text>
-                                  </TouchableOpacity>
-                              </>
-                              :
-                              <>
-                                  <RoadBookList listRoadBook={roadBookList} />
-                              </>
-                      }
-                  </View>
-          }
+          {isLoading ? (
+            <Text style={{ color: colors.text }}>{t("common.loading")}</Text>
+          ) : error ? (
+            <Text style={{ color: colors.text }}>{error}</Text>
+          ) : null}
+          {roadBookList.length === 0 ? (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconContainer}>
+                <FontAwesome name={tab === 1 ? "user" : "book"} size={40} color={colors.text} />
+                <View style={styles.hashtagBubble}>
+                  <Text style={[styles.hashtagText, { color: colors.text }]} >#</Text>
+                </View>
+              </View>
+              <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
+              <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
+                <FontAwesome name="book" size={16} color={colors.text} style={{marginRight: 10}} />
+                <Text style={{ color: colors.text }}>{t("add.createRoadbook")}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <RoadBookList listRoadBook={roadBookList} />
+          )}
       </ScrollView>
     </SafeAreaView>
   );

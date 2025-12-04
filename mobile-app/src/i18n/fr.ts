@@ -78,6 +78,9 @@ export default {
     submit: "Créer le roadbook",
     yes: "Oui",
     no: "Non",
+    createSuccess: "Roadbook créé avec succès.",
+    createError: "Impossible de créer le roadbook.",
+    titleRequired: "Le titre est obligatoire.",
   },
 
   map: {
@@ -90,6 +93,7 @@ export default {
     errorAuth: "Utilisateur non authentifié.",
     cancel: "Annuler",
     loading: "Chargement...",
+    loadError: "Impossible de charger les données.",
   },
 
   security: {
