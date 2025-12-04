@@ -1,76 +1,136 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useTheme } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-         <TouchableOpacity onPress={() => router.back()}>
-             <Text style={styles.headerText}>@Mourad9101 v</Text>
-         </TouchableOpacity>
-         <View style={styles.headerIcons}>
-             <FontAwesome name="user-plus" size={20} color="black" style={{marginRight: 15}} />
-             <FontAwesome name="cog" size={20} color="black" />
-         </View>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={[styles.headerText, { color: colors.text }]}>
+            @Mourad9101 v
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.headerIcons}>
+          <TouchableOpacity>
+            <FontAwesome
+              name="user-plus"
+              size={20}
+              color={colors.text}
+              style={{ marginRight: 15 }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/settings")}>
+            <FontAwesome name="cog" size={20} color={colors.text} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.profileSection}>
-         <View style={styles.avatarLarge}>
-             <FontAwesome name="user" size={50} color="#666" />
-         </View>
-         <View style={styles.stats}>
-             <View style={styles.statItem}>
-                 <Text style={styles.statNumber}>0</Text>
-                 <Text style={styles.statLabel}>Lieux</Text>
-             </View>
-             <View style={styles.statItem}>
-                 <Text style={styles.statNumber}>0</Text>
-                 <Text style={styles.statLabel}>Abonnements</Text>
-             </View>
-             <View style={styles.statItem}>
-                 <Text style={styles.statNumber}>0</Text>
-                 <Text style={styles.statLabel}>Abonnés</Text>
-             </View>
-         </View>
+        <View style={[styles.avatarLarge, { backgroundColor: colors.card }]}>
+          <FontAwesome name="user" size={50} color={colors.text} />
+        </View>
+
+        <View style={styles.stats}>
+          <View style={styles.statItem}>
+            <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
+            <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
+              Lieux
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
+            <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
+              Abonnements
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
+            <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
+              Abonnés
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.bioSection}>
-          <Text style={styles.name}>Mourad</Text>
-          <Text style={styles.bioPlaceholder}>Ajoutez une bio pour en dire plus sur vous</Text>
+        <Text style={[styles.name, { color: colors.text }]}>Mourad</Text>
+        <Text style={[styles.bioPlaceholder, { color: colors.text, opacity: 0.6 }]}>
+          Ajoutez une bio pour en dire plus sur vous
+        </Text>
       </View>
 
       <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Modifier mon profil</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Partager ma carte</Text>
-          </TouchableOpacity>
-      </View>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.card }]}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>
+            Modifier mon profil
+          </Text>
+        </TouchableOpacity>
 
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.card }]}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>
+            Partager ma carte
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center' },
-  headerText: { fontWeight: 'bold', fontSize: 16 },
-  headerIcons: { flexDirection: 'row' },
-  profileSection: { flexDirection: 'row', alignItems: 'center', padding: 20 },
-  avatarLarge: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#ddd', justifyContent: 'center', alignItems: 'center', marginRight: 20 },
-  stats: { flexDirection: 'row', flex: 1, justifyContent: 'space-around' },
-  statItem: { alignItems: 'center' },
-  statNumber: { fontWeight: 'bold', fontSize: 16 },
-  statLabel: { fontSize: 12, color: '#666' },
+  container: { flex: 1 },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    alignItems: "center",
+  },
+  headerText: { fontWeight: "bold", fontSize: 16 },
+  headerIcons: { flexDirection: "row" },
+
+  profileSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  avatarLarge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 20,
+  },
+
+  stats: { flexDirection: "row", flex: 1, justifyContent: "space-around" },
+  statItem: { alignItems: "center" },
+  statNumber: { fontWeight: "bold", fontSize: 16 },
+  statLabel: { fontSize: 12 },
+
   bioSection: { paddingHorizontal: 20, marginBottom: 20 },
-  name: { fontWeight: 'bold', fontSize: 18, marginBottom: 5 },
-  bioPlaceholder: { color: '#666' },
-  actionButtons: { flexDirection: 'row', paddingHorizontal: 20, gap: 10 },
-  button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
-  buttonText: { fontWeight: '500' },
+  name: { fontWeight: "bold", fontSize: 18, marginBottom: 5 },
+  bioPlaceholder: {},
+
+  actionButtons: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: { fontWeight: "500" },
 });
+
