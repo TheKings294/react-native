@@ -19,3 +19,17 @@ export type RoadBook = {
     favoriteCount: number;
     places: Place[];
 }
+
+export type RoadBookFormData = {
+    title: string;
+    description?: string;
+    coverImage?: string;
+    startDate?: Date;
+    endDate?: Date;
+    countries: string[];
+    tags: string[];
+    isPublished: boolean;
+    isPublic: boolean;
+    template: string;
+    theme: string;
+};

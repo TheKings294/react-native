@@ -26,6 +26,7 @@ function NavigationRoot() {
           <Stack.Screen name="settings" options={{ title: t("settings.title") }} />
           <Stack.Screen name="security" options={{ title: "Sécurité" }} />
           <Stack.Screen name="edit-profile" options={{ title: "Infos personnelles" }} />
+            <Stack.Screen name="form-new-roadbook" options={{ title: "Creation d'un roadbook" }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
@@ -36,7 +37,6 @@ function NavigationRoot() {
 export default function RootLayout() {
   return (
     <ThemeModeProvider>
-      {/* ✅ PROVIDER LANGUE GLOBAL */}
       <LanguageProvider>
         <NavigationRoot />
       </LanguageProvider>

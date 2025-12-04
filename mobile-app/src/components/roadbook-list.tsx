@@ -1,6 +1,6 @@
 import {Text, Image, StyleSheet, ScrollView, Pressable} from "react-native";
 import {RoadBook} from "@/model/RaodBook";
-import {router, useNavigation, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 
 type RoadBookListProps = {
     listRoadBook: RoadBook[];
@@ -12,7 +12,8 @@ function RoadBookList({ listRoadBook }: RoadBookListProps) {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             {listRoadBook.map((rb) => (
-                <Pressable key={rb.id} style={styles.card} onPress={() => routeur.push("/roadbook")}>
+                <Pressable key={rb.id} style={styles.card} onPress={() =>
+                    routeur.push(`/roadbook?data=${encodeURIComponent(JSON.stringify(rb))}`)}>
                     <Image
                         source={{ uri: rb.coverImageURL }}
                         style={styles.cover}
