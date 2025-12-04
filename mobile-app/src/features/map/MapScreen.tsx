@@ -1,17 +1,38 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
-import { useTheme } from "@react-navigation/native";
+import { useTheme, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
+import { getLocalPlaces, LocalPlace } from "@/lib/placesStorage";
 
 export default function MapScreen() {
   const { colors } = useTheme();
   const { user } = useAuth();
+  const [places, setPlaces] = useState<LocalPlace[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const displayName = user?.displayName || user?.username || 'Utilisateur';
   const usernameLabel = user?.username ? `@${user.username}` : user?.email || "Profil";
+
+  const fetchPlaces = async () => {
+    setLoading(true);
+    try {
+      const data = await getLocalPlaces();
+      setPlaces(data);
+    } catch (error) {
+      console.error("Failed to fetch places:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPlaces();
+    }, [])
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -24,11 +45,14 @@ export default function MapScreen() {
           longitudeDelta: 0.0421,
         }}
       >
-        <Marker
-            coordinate={{ latitude: 47.9032, longitude: 1.9085 }}
-            title={"Orléans"}
-            description={"Location"}
-         />
+        {places.map((place) => (
+            <Marker
+                key={place.id}
+                coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                title={place.name}
+                description={place.description}
+            />
+        ))}
       </MapView>
 
       {/* Floating Header Over Map */}
@@ -54,9 +78,11 @@ export default function MapScreen() {
 
           <View style={{ flex: 1 }} />
 
-          <TouchableOpacity>
+           {loading && <ActivityIndicator size="small" color={colors.primary} style={{ marginRight: 10 }} />}
+
+          <TouchableOpacity onPress={fetchPlaces}>
             <FontAwesome
-              name="question-circle-o"
+              name="refresh"
               size={24}
               color={colors.text}
               style={{ marginRight: 15 }}
