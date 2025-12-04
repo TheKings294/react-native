@@ -11,13 +11,12 @@ import { useTheme } from "@react-navigation/native";
 import { router } from "expo-router";
 import { useLanguage } from "@/providers/LanguageProvider";
 
-type LangCode = "fr" | "en" | "ar";
+type LangCode = "fr" | "en";
 type Lang = { code: LangCode; label: string };
 
 const LANGUAGES: Lang[] = [
   { code: "fr", label: "Français" },
   { code: "en", label: "English" },
-  { code: "ar", label: "العربية" },
 ];
 
 export default function LanguageScreen() {
@@ -29,7 +28,7 @@ export default function LanguageScreen() {
       await setLang(code);
       Alert.alert(t("settings.language"), t("common.saved"));
       router.back();
-    } catch (e) {
+    } catch {
       Alert.alert("Erreur", "Impossible de sauvegarder la langue.");
     }
   };

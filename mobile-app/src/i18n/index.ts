@@ -4,12 +4,9 @@ import * as Localization from "expo-localization";
 
 import fr from "./fr";
 import en from "./en";
-import ar from "./ar";
-
 export const i18n = new I18n({
   fr,
   en,
-  ar,
 });
 
 i18n.enableFallback = true;
@@ -18,4 +15,4 @@ i18n.enableFallback = true;
 const deviceLocale =
   Localization.getLocales()?.[0]?.languageCode || "fr";
 
-i18n.locale = deviceLocale;
+i18n.locale = deviceLocale === "fr" || deviceLocale === "en" ? deviceLocale : "fr";

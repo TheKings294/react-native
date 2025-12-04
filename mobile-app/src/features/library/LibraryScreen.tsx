@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
 import { useTheme } from "@react-navigation/native";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function LibraryScreen() {
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
   const { colors } = useTheme();
+  const { t } = useLanguage();
   const [roadBookList] = useState<RoadBook[]>([
       {
           id: 1,
@@ -80,10 +82,10 @@ export default function LibraryScreen() {
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity style={[styles.tab, tab === 1 && styles.activeTab]} onPress={() => setTab(1)}>
-            <Text style={tab === 1 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>Abonnements</Text>
+            <Text style={tab === 1 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>{t("library.titleTab1")}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.tab, tab === 2 && styles.activeTab]} onPress={() => setTab(2)}>
-            <Text style={tab === 2 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>Mes roadBooks</Text>
+            <Text style={tab === 2 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>{t("library.titleTab2")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -118,11 +120,11 @@ export default function LibraryScreen() {
                               <Text style={[styles.hashtagText, { color: colors.text }]} >#</Text>
                           </View>
                       </View>
-                      <Text style={[styles.emptyText, { color: colors.text }]}>Les cartes que vous suivez seront accessibles d&apos;ici</Text>
+                      <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
 
                       <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
                           <FontAwesome name="user-plus" size={16} color={colors.text} style={{marginRight: 10}} />
-                          <Text style={{ color: colors.text }}>Ajouter des amis</Text>
+                          <Text style={{ color: colors.text }}>{t("library.addFriends")}</Text>
                       </TouchableOpacity>
                   </View>
                   :
@@ -136,11 +138,11 @@ export default function LibraryScreen() {
                                           <Text style={[styles.hashtagText, { color: colors.text }]}>#</Text>
                                       </View>
                                   </View>
-                                  <Text style={[styles.emptyText, { color: colors.text }]}>Vos roads books se retrouve ici</Text>
+                                  <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
 
                                   <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
                                       <FontAwesome name="book" size={16} color={colors.text} style={{marginRight: 10}} />
-                                      <Text style={{ color: colors.text }}>Crée un road book</Text>
+                                      <Text style={{ color: colors.text }}>{t("add.createRoadbook")}</Text>
                                   </TouchableOpacity>
                               </>
                               :

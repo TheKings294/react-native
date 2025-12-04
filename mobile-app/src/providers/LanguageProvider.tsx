@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { i18n } from "@/i18n";
-import { I18nManager } from "react-native";
+// I18nManager kept in case RTL returns later; unused now that Arabic is removed
 
-type LangCode = "fr" | "en" | "ar";
+type LangCode = "fr" | "en";
 
 type LanguageContextType = {
   lang: LangCode;
@@ -30,11 +30,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     i18n.locale = l;
     setLangState(l);
 
-    const shouldRTL = l === "ar";
-    if (I18nManager.isRTL !== shouldRTL) {
-      I18nManager.allowRTL(shouldRTL);
-      I18nManager.forceRTL(shouldRTL);
-    }
+    // RTL handling removed since Arabic is no longer supported
   };
 
   const t = (key: string) => i18n.t(key);
