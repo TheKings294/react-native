@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {View, Text, StyleSheet, Switch, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator,} from "react-native";
+import {View, Text, StyleSheet, Switch, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator, Modal, Pressable,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
@@ -18,13 +18,13 @@ export default function SecurityScreen() {
   const { user, token, setAuthData } = useAuth();
 
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -90,6 +90,7 @@ export default function SecurityScreen() {
       setShowPasswordForm(false);
 
       Alert.alert("Succès", "Mot de passe mis à jour ");
+      setShowPasswordModal(false);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Impossible de sauvegarder le mot de passe.";
@@ -122,76 +123,21 @@ export default function SecurityScreen() {
           Mot de passe
         </Text>
 
-        <View
+      <View
           style={[
             styles.card,
             { backgroundColor: colors.card, marginBottom: 16 },
           ]}
         >
-          <Row
-            label="Changer le mot de passe"
-            desc="Modifier ton mot de passe"
-            value={showPasswordForm}
-            onChange={(v) => setShowPasswordForm(v)}
-            colors={colors}
-          />
-
-          {showPasswordForm && (
-            <View style={{ marginTop: 10 }}>
-              <TextInput
-                placeholder="Mot de passe actuel"
-                secureTextEntry
-                value={currentPwd}
-                onChangeText={setCurrentPwd}
-                placeholderTextColor={colors.text + "99"}
-                style={[
-                  styles.input,
-                  { color: colors.text, borderColor: colors.border },
-                ]}
-              />
-
-              <TextInput
-                placeholder="Nouveau mot de passe"
-                secureTextEntry
-                value={newPwd}
-                onChangeText={setNewPwd}
-                placeholderTextColor={colors.text + "99"}
-                style={[
-                  styles.input,
-                  { color: colors.text, borderColor: colors.border },
-                ]}
-              />
-
-              <TextInput
-                placeholder="Confirmer le nouveau mot de passe"
-                secureTextEntry
-                value={confirmPwd}
-                onChangeText={setConfirmPwd}
-                placeholderTextColor={colors.text + "99"}
-                style={[
-                  styles.input,
-                  { color: colors.text, borderColor: colors.border },
-                ]}
-              />
-
-              <TouchableOpacity
-                onPress={handleChangePassword}
-                style={[
-                  styles.saveBtn,
-                  { backgroundColor: isSavingPassword ? colors.border : colors.primary },
-                ]}
-                disabled={isSavingPassword}
-              >
-                {isSavingPassword ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={{ color: "white", fontWeight: "700" }}>
-                    Enregistrer
-                  </Text>
-                )}
-              </TouchableOpacity>
+          <Pressable style={styles.row} onPress={() => setShowPasswordModal(true)}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.text, fontWeight: "700" }}>Changer le mot de passe</Text>
+              <Text style={{ color: colors.text, opacity: 0.6, fontSize: 12 }}>
+                Modifier ton mot de passe
+              </Text>
             </View>
-          )}
+            <Text style={[styles.chevron, { color: colors.text, opacity: 0.5 }]}>›</Text>
+          </Pressable>
         </View>
 
         <Text
@@ -218,6 +164,86 @@ export default function SecurityScreen() {
           )}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={showPasswordModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowPasswordModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Modifier le mot de passe</Text>
+
+            <TextInput
+              placeholder="Mot de passe actuel"
+              secureTextEntry
+              value={currentPwd}
+              onChangeText={setCurrentPwd}
+              placeholderTextColor={colors.text + "99"}
+              style={[
+                styles.input,
+                { color: colors.text, borderColor: colors.border },
+              ]}
+            />
+
+            <TextInput
+              placeholder="Nouveau mot de passe"
+              secureTextEntry
+              value={newPwd}
+              onChangeText={setNewPwd}
+              placeholderTextColor={colors.text + "99"}
+              style={[
+                styles.input,
+                { color: colors.text, borderColor: colors.border },
+              ]}
+            />
+
+            <TextInput
+              placeholder="Confirmer le nouveau mot de passe"
+              secureTextEntry
+              value={confirmPwd}
+              onChangeText={setConfirmPwd}
+              placeholderTextColor={colors.text + "99"}
+              style={[
+                styles.input,
+                { color: colors.text, borderColor: colors.border },
+              ]}
+            />
+
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+              <TouchableOpacity
+                style={[
+                  styles.saveBtn,
+                  { flex: 1, backgroundColor: colors.border },
+                ]}
+                onPress={() => setShowPasswordModal(false)}
+                disabled={isSavingPassword}
+              >
+                <Text style={{ color: colors.text, fontWeight: "700" }}>
+                  Annuler
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleChangePassword}
+                style={[
+                  styles.saveBtn,
+                  { flex: 1, backgroundColor: isSavingPassword ? colors.border : colors.primary },
+                ]}
+                disabled={isSavingPassword}
+              >
+                {isSavingPassword ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={{ color: "white", fontWeight: "700" }}>
+                    Enregistrer
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -278,5 +304,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     marginTop: 4,
+  },
+  chevron: { fontSize: 18 },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  modalContent: {
+    width: "100%",
+    borderRadius: 16,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 12,
   },
 });
