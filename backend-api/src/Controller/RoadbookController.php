@@ -105,6 +105,15 @@ class RoadbookController extends AbstractController
             properties: [
                 new OA\Property(property: 'title', type: 'string', example: 'My Summer Trip'),
                 new OA\Property(property: 'description', type: 'string', example: 'A beautiful road trip through Europe'),
+                new OA\Property(property: 'overImage', type: 'string', example: 'Link to cover image'),
+                new OA\Property(property: 'startDate', type: 'date', example: 'The start date'),
+                new OA\Property(property: 'endDate', type: 'date', example: 'The end date'),
+                new OA\Property(property: 'countries', type: 'array', example: 'France, Angleterre'),
+                new OA\Property(property: 'tags', type: 'array', example: 'Tags'),
+                new OA\Property(property: 'isPublished', type: 'boolean', example: 'True'),
+                new OA\Property(property: 'isPublic', type: 'boolean', example: 'Flase'),
+                new OA\Property(property: 'template', type: 'string', example: 'SIMPLE'),
+                new OA\Property(property: 'theme', type: 'string', example: 'Van'),
                 new OA\Property(
                     property: 'places',
                     type: 'array',
@@ -130,6 +139,15 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
+        $roadbook->setCreatedAt(new \DateTimeImmutable());
+        $roadbook->setUpdatedAt(new \DateTimeImmutable());
+        $roadbook->setCoverImage($data['coverImage'] ?? "");
+        $roadbook->setstartDate($data['startDate'] ?? new \DateTimeImmutable());
+        $roadbook->setIsPublic($data['isPublic'] ?? false);
+        $roadbook->setTags($data['tags'] ?? []);
+        $roadbook->setIsPublished($data['isPublished'] ?? false);
+        $roadbook->setTemplate($data['template'] ?? 'SIMPLE');
+        $roadbook->setTheme($data['theme'] ?? '');
         $roadbook->setUserId($user->getId());
 
         // Add places if provided

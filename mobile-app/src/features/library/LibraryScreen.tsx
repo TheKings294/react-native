@@ -2,11 +2,12 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
 import {useTheme} from "@react-navigation/native";
+import {getRoadBook} from "@/lib/api";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -15,38 +16,22 @@ export default function LibraryScreen() {
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
   const {colors} = useTheme();
-  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
-      {
-          id: 1,
-          userId: 1,
-          title: "Hello",
-          description: "Hello",
-          coverImageURL: "https://picsum.photos/200/300",
-          startDate: new Date("2025-11-29"),
-          endDate: new Date("2025-12-29"),
-          countries: [
-              "France",
-              "Angleterre"
-          ],
-          tags: [
-              "Van",
-              "Wine",
-          ],
-          isPublished: false,
-          isPublic: false,
-          theme: [
-              "New",
-              "FavoritePlace",
-          ],
-          createdAt: new Date("2025-11-29"),
-          updatedAt: new Date("2025-11-29"),
-          viewCount: 1,
-          favoriteCount: 0,
-          places: []
-      },
-  ]);
+  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([]);
 
-  return (
+    useEffect(() => {
+        async function load() {
+            try {
+                const data = await getRoadBook();
+                setRoadBookList(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        load();
+    }, []);
+
+
+    return (
     <SafeAreaView style={[styles.container, { backgroundColor: 'white' }]}>
       {/* Header */}
       <View style={styles.header}>

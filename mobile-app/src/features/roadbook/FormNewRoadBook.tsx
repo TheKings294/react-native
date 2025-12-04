@@ -6,8 +6,18 @@ import {View,
     StyleSheet,} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {useState} from "react";
+import { Picker } from '@react-native-picker/picker';
+import {createRoadBook, CreateRoadBookPayload} from "@/lib/api";
 
 function FormNewRoadBook() {
+    type TemplateType =
+        | 'SIMPLE'
+        | 'TRAVEL_DIARY'
+        | 'PHOTO_ALBUM'
+        | 'MAGAZINE'
+        | 'MINIMALIST'
+        | 'CLASSIC';
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [coverImage, setCoverImage] = useState("");
@@ -28,11 +38,12 @@ function FormNewRoadBook() {
     const [isPublished, setIsPublished] = useState(false);
     const [isPublic, setIsPublic] = useState(false);
 
-    const [template, setTemplate] = useState("SIMPLE");
+    const [template, setTemplate] = useState<TemplateType>('SIMPLE');
     const [theme, setTheme] = useState("default");
+    const [error, setError] = useState<string | null>(null);
 
-    const onSubmit = () => {
-        const data = {
+    const onSubmit = async () => {
+        const data: CreateRoadBookPayload = {
             title,
             description,
             coverImage,
@@ -46,12 +57,21 @@ function FormNewRoadBook() {
             theme,
         };
 
-        console.log("Roadbook created:", data);
+        try {
+            const response = await createRoadBook(data)
+
+            console.log(response)
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Une erreur s'est produite.";
+            setError(message);
+        }
     };
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <Text style={styles.title}>Create Roadbook</Text>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
             {/* Title */}
             <Text style={styles.label}>Title</Text>
@@ -101,6 +121,7 @@ function FormNewRoadBook() {
                 <DateTimePicker
                     value={new Date()}
                     mode="date"
+                    textColor="black"
                     onChange={(e, date) => {
                         setShowDatePicker(null);
                         if (!date) return;
@@ -196,11 +217,19 @@ function FormNewRoadBook() {
 
             {/* Template */}
             <Text style={styles.label}>Template</Text>
-            <TextInput
-                style={styles.input}
-                value={template}
-                onChangeText={setTemplate}
-            />
+            <Picker
+                selectedValue={template}
+                onValueChange={(itemValue) => setTemplate(itemValue)}
+                style={[styles.input, { color: 'black' }]}
+                dropdownIconColor="black"
+            >
+                <Picker.Item label="Simple" value="SIMPLE" color={"black"} />
+                <Picker.Item label="Travel Diary" value="TRAVEL_DIARY" color={"black"} />
+                <Picker.Item label="Photo Album" value="PHOTO_ALBUM" color={"black"} />
+                <Picker.Item label="Magazine" value="MAGAZINE" color={"black"} />
+                <Picker.Item label="Minimalist" value="MINIMALIST" color={"black"} />
+                <Picker.Item label="Classic" value="CLASSIC" color={"black"} />
+            </Picker>
 
             {/* Theme */}
             <Text style={styles.label}>Theme</Text>
@@ -270,6 +299,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: "600",
     },
+    error: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });
 
 

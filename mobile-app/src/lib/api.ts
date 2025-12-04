@@ -1,4 +1,5 @@
 import { getAuthToken } from './authStorage';
+import {RoadBook} from "@/model/RaodBook";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -151,6 +152,20 @@ export type UpdateUserProfilePayload = {
   isProfilePublic?: boolean | null;
 };
 
+export type CreateRoadBookPayload = {
+    title: string;
+    description: string;
+    coverImage?: string | null;
+    startDate?: Date;
+    endDate?: Date;
+    countries: string[];
+    tags: string[];
+    isPublished: boolean;
+    isPublic: boolean;
+    template: string;
+    theme: string;
+}
+
 export async function updateUserProfile(payload: UpdateUserProfilePayload) {
   const token = await getAuthToken();
   if (!token) {
@@ -165,4 +180,39 @@ export async function updateUserPassword(payload: { oldPassword: string; newPass
     throw new Error('Utilisateur non authentifié.');
   }
   return apiPatch<{ message: string }>('/api/user/update-password', payload, token);
+}
+
+export async function createRoadBook(payload: CreateRoadBookPayload) {
+    const token = await getAuthToken();
+    if (!token) {
+        throw new Error('Utilisateur non authentifié.');
+    }
+
+    return apiPost<{message : string}>('/api/roadbooks', payload, token);
+}
+
+export async function getRoadBook(): Promise<RoadBook[]> {
+    const token = await getAuthToken();
+    if (!token) {
+        throw new Error('Utilisateur non authentifié.');
+    }
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+    };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}/api/roadbooks`, {
+        headers
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+    }
+
+    return await response.json();
 }
