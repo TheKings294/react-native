@@ -1,74 +1,73 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import {View, Text, StyleSheet, Switch, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/context/AuthContext";
+import { updateUserProfile, updateUserPassword } from "@/lib/api";
 
 type PrivacySettings = {
   privateAccount: boolean;
-  hideEmail: boolean;
-  hidePhone: boolean;
 };
-
-const PRIVACY_KEY = "privacySettings";
-const PASSWORD_KEY = "mockPassword";
 
 const DEFAULT_PRIVACY: PrivacySettings = {
   privateAccount: false,
-  hideEmail: false,
-  hidePhone: false,
 };
 
 export default function SecurityScreen() {
   const { colors } = useTheme();
+  const { user, token, setAuthData } = useAuth();
 
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
-
-
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
-  const [savedPwd, setSavedPwd] = useState<string | null>(null);
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const savedPrivacy = await AsyncStorage.getItem(PRIVACY_KEY);
-        if (savedPrivacy) setPrivacy(JSON.parse(savedPrivacy));
+    if (user) {
+      setPrivacy({
+        privateAccount: user.isProfilePublic === false,
+      });
+    }
+    setLoading(false);
+  }, [user]);
 
-        const savedPassword = await AsyncStorage.getItem(PASSWORD_KEY);
-        if (savedPassword) setSavedPwd(savedPassword);
-      } catch (e) {
-        setPrivacy(DEFAULT_PRIVACY);
-      }
-    })();
-  }, []);
+  const togglePrivacy = async (key: keyof PrivacySettings, v: boolean) => {
+    if (!token || !user) {
+      Alert.alert("Erreur", "Utilisateur non authentifié.");
+      return;
+    }
+    if (key !== "privateAccount") return;
 
-  useEffect(() => {
-    AsyncStorage.setItem(PRIVACY_KEY, JSON.stringify(privacy));
-  }, [privacy]);
-
-  const togglePrivacy = (key: keyof PrivacySettings, v: boolean) => {
-    setPrivacy((prev) => ({ ...prev, [key]: v }));
+    const nextPrivacy = { ...privacy, privateAccount: v };
+    setPrivacy(nextPrivacy);
+    setIsSavingPrivacy(true);
+    try {
+      const isProfilePublic = !v;
+      await updateUserProfile({ isProfilePublic });
+      await setAuthData(token, { ...user, isProfilePublic });
+    } catch (e) {
+      setPrivacy(privacy);
+      const message = e instanceof Error ? e.message : "Impossible de mettre à jour.";
+      Alert.alert("Erreur", message);
+    } finally {
+      setIsSavingPrivacy(false);
+    }
   };
 
   const handleChangePassword = async () => {
+    if (!token) {
+      Alert.alert("Erreur", "Utilisateur non authentifié.");
+      return;
+    }
+    if (!currentPwd.trim()) {
+      Alert.alert("Erreur", "Merci de renseigner votre mot de passe actuel.");
+      return;
+    }
     try {
-      if (savedPwd && currentPwd !== savedPwd) {
-        Alert.alert("Erreur", "Mot de passe actuel incorrect.");
-        return;
-      }
-
       if (newPwd.trim().length < 6) {
         Alert.alert(
           "Erreur",
@@ -82,19 +81,31 @@ export default function SecurityScreen() {
         return;
       }
 
-      await AsyncStorage.setItem(PASSWORD_KEY, newPwd);
-      setSavedPwd(newPwd);
+      setIsSavingPassword(true);
+      await updateUserPassword({ oldPassword: currentPwd, newPassword: newPwd });
 
       setCurrentPwd("");
       setNewPwd("");
       setConfirmPwd("");
       setShowPasswordForm(false);
 
-      Alert.alert("Succès", "Mot de passe mis à jour ✅");
+      Alert.alert("Succès", "Mot de passe mis à jour ");
     } catch (e) {
-      Alert.alert("Erreur", "Impossible de sauvegarder le mot de passe.");
+      const message =
+        e instanceof Error ? e.message : "Impossible de sauvegarder le mot de passe.";
+      Alert.alert("Erreur", message);
+    } finally {
+      setIsSavingPassword(false);
     }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Chargement...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -127,19 +138,17 @@ export default function SecurityScreen() {
 
           {showPasswordForm && (
             <View style={{ marginTop: 10 }}>
-              {savedPwd && (
-                <TextInput
-                  placeholder="Mot de passe actuel"
-                  secureTextEntry
-                  value={currentPwd}
-                  onChangeText={setCurrentPwd}
-                  placeholderTextColor={colors.text + "99"}
-                  style={[
-                    styles.input,
-                    { color: colors.text, borderColor: colors.border },
-                  ]}
-                />
-              )}
+              <TextInput
+                placeholder="Mot de passe actuel"
+                secureTextEntry
+                value={currentPwd}
+                onChangeText={setCurrentPwd}
+                placeholderTextColor={colors.text + "99"}
+                style={[
+                  styles.input,
+                  { color: colors.text, borderColor: colors.border },
+                ]}
+              />
 
               <TextInput
                 placeholder="Nouveau mot de passe"
@@ -167,11 +176,19 @@ export default function SecurityScreen() {
 
               <TouchableOpacity
                 onPress={handleChangePassword}
-                style={[styles.saveBtn, { backgroundColor: colors.primary }]}
+                style={[
+                  styles.saveBtn,
+                  { backgroundColor: isSavingPassword ? colors.border : colors.primary },
+                ]}
+                disabled={isSavingPassword}
               >
-                <Text style={{ color: "white", fontWeight: "700" }}>
-                  Enregistrer
-                </Text>
+                {isSavingPassword ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={{ color: "white", fontWeight: "700" }}>
+                    Enregistrer
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           )}
@@ -194,22 +211,11 @@ export default function SecurityScreen() {
             onChange={(v) => togglePrivacy("privateAccount", v)}
             colors={colors}
           />
-
-          <Row
-            label="Masquer mon email"
-            desc="Ne pas afficher ton email publiquement"
-            value={privacy.hideEmail}
-            onChange={(v) => togglePrivacy("hideEmail", v)}
-            colors={colors}
-          />
-
-          <Row
-            label="Masquer mon téléphone"
-            desc="Ne pas afficher ton numéro publiquement"
-            value={privacy.hidePhone}
-            onChange={(v) => togglePrivacy("hidePhone", v)}
-            colors={colors}
-          />
+          {isSavingPrivacy && (
+            <Text style={{ color: colors.text, opacity: 0.6, marginTop: 8 }}>
+              Mise à jour...
+            </Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

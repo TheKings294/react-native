@@ -1,29 +1,35 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useAuth } from "@/context/AuthContext";
 
 export default function MapScreen() {
   const { colors } = useTheme();
-  const { t } = useLanguage();
+  const { user } = useAuth();
+
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
+  const usernameLabel = user?.username ? `@${user.username}` : user?.email || "Profil";
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Map Placeholder */}
-      <View style={styles.mapPlaceholder}>
-        <Text style={{ color: colors.text }}>
-          {t("map.placeholder")}
-        </Text>
-
-        <Image
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Africa_map_blank.svg/1200px-Africa_map_blank.svg.png",
-          }}
-          style={styles.mapImage}
-        />
-      </View>
+      <MapView 
+        style={styles.map}
+        initialRegion={{
+          latitude: 48.8566,
+          longitude: 2.3522,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        <Marker
+            coordinate={{ latitude: 47.9032, longitude: 1.9085 }}
+            title={"Orléans"}
+            description={"Location"}
+         />
+      </MapView>
 
       {/* Floating Header Over Map */}
       <SafeAreaView style={styles.headerOverlay}>
@@ -39,10 +45,10 @@ export default function MapScreen() {
 
           <View>
             <Text style={[styles.username, { color: colors.text }]}>
-              @user.username
+              {displayName}
             </Text>
             <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>
-              1 adresse
+              {usernameLabel}
             </Text>
           </View>
 
@@ -68,20 +74,7 @@ export default function MapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
-  mapPlaceholder: {
-    flex: 1,
-    backgroundColor: "#A3CCFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mapImage: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    opacity: 0.5,
-  },
-
+  map: { width: '100%', height: '100%' },
   headerOverlay: { position: "absolute", top: 0, left: 0, right: 0 },
   headerContent: {
     flexDirection: "row",
@@ -91,7 +84,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     opacity: 0.9,
   },
-
   avatarPlaceholder: {
     width: 35,
     height: 35,

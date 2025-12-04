@@ -134,7 +134,7 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function updatePassword(Response $request): JsonResponse
+    public function updatePassword(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $this->getUser();

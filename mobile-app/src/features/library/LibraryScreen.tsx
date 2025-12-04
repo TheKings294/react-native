@@ -47,7 +47,7 @@ export default function LibraryScreen() {
   ]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: 'white' }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
@@ -67,12 +67,12 @@ export default function LibraryScreen() {
             <FontAwesome
               name="question-circle-o"
               size={24}
-              color={colors.text}
+              color="black"
               style={{ marginRight: 15 }}
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            <FontAwesome name="upload" size={24} color={colors.text} />
+            <FontAwesome name="upload" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
@@ -91,19 +91,19 @@ export default function LibraryScreen() {
       <View
         style={[
           styles.searchContainer,
-          { backgroundColor: colors.card },
+          { backgroundColor: 'lightgray' },
         ]}
       >
         <FontAwesome
           name="search"
           size={16}
-          color={colors.text}
+          color="black"
           style={[styles.searchIcon, { opacity: 0.5 }]}
         />
         <TextInput
           placeholder="Recherche..."
-          placeholderTextColor={colors.text + "99"} // ~60% opacity
-          style={[styles.searchInput, { color: colors.text }]}
+          placeholderTextColor={'gray'}
+          style={[styles.searchInput, { color: 'black' }]}
         />
       </View>
 

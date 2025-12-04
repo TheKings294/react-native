@@ -8,7 +8,7 @@ import { useTheme } from "@react-navigation/native";
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const {colors} = useTheme();
+  const { colors } = useTheme();
 
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
@@ -75,6 +75,7 @@ export default function ProfileScreen() {
             Modifier mon profil
           </Text>
         </TouchableOpacity>
+      </View>
 
           <View style={styles.logoutContainer}>
               <TouchableOpacity style={styles.logoutButton} onPress={logout}>
@@ -121,6 +122,7 @@ const styles = StyleSheet.create({
   bioSection: { paddingHorizontal: 20, marginBottom: 20 },
   name: { fontWeight: 'bold', fontSize: 18, marginBottom: 5 },
   bioPlaceholder: { color: '#666' },
+  email: { color: '#666', marginTop: 4 },
   actionButtons: { flexDirection: 'row', paddingHorizontal: 20, gap: 10 },
   button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
   buttonText: { fontWeight: '500' },
@@ -129,4 +131,3 @@ const styles = StyleSheet.create({
   logoutText: { fontWeight: '600' },
     email: {color: '#666', marginTop: 4}
 });
-
