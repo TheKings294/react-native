@@ -979,10 +979,50 @@
                 "tags": [
                     "Users"
                 ],
+                "summary": "Update the authenticated user profile",
+                "description": "Allows the authenticated user to update their username, display name, avatar, bio, or visibility.",
                 "operationId": "put_api_user_update",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "displayName": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "isProfilePublic": {
+                                        "type": "boolean",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "default": {
-                        "description": ""
+                    "200": {
+                        "description": "User updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 }
             }
@@ -992,10 +1032,40 @@
                 "tags": [
                     "Users"
                 ],
+                "summary": "Update the authenticated user password",
+                "description": "Requires the current password and a new password.",
                 "operationId": "patch_api_user_update_password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "oldPassword",
+                                    "newPassword"
+                                ],
+                                "properties": {
+                                    "oldPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "default": {
-                        "description": ""
+                    "200": {
+                        "description": "Password updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Invalid credentials or unauthorized"
                     }
                 }
             }
@@ -1005,20 +1075,29 @@
                 "tags": [
                     "Users"
                 ],
+                "summary": "Delete a user",
+                "description": "Allows a user to delete their own account. Admins may delete any account.",
                 "operationId": "delete_api_user_delete",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "The ID of the user to delete",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": ""
+                    "200": {
+                        "description": "User deleted successfully"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 trying to delete another user without admin role"
                     }
                 }
             }

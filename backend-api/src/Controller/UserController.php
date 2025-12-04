@@ -35,7 +35,6 @@ class UserController extends AbstractController
     #[Route('/update', name: 'api_user_update', methods: ['PUT'])]
     #[IsGranted('ROLE_USER')]
     #[OA\Put(
-        path: '/update',
         description: 'Allows the authenticated user to update their username, display name, avatar, bio, or visibility.',
         summary: 'Update the authenticated user profile',
         requestBody: new OA\RequestBody(
@@ -106,7 +105,6 @@ class UserController extends AbstractController
     #[Route('/update-password', name: 'api_user_update_password', methods: ['PATCH'])]
     #[IsGranted('ROLE_USER')]
     #[OA\Patch(
-        path: '/update-password',
         description: 'Requires the current password and a new password.',
         summary: 'Update the authenticated user password',
         requestBody: new OA\RequestBody(
@@ -164,7 +162,6 @@ class UserController extends AbstractController
     #[Route('/delete/{id}', name: 'api_user_delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
     #[OA\Delete(
-        path: '/delete/{id}',
         description: 'Allows a user to delete their own account. Admins may delete any account.',
         summary: 'Delete a user',
         tags: ['Users'],

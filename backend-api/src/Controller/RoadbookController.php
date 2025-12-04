@@ -130,7 +130,7 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
-        $roadbook->setUserId($user);
+        $roadbook->setUserId($user->getId());
 
         // Add places if provided
         if (isset($data['places']) && is_array($data['places'])) {
