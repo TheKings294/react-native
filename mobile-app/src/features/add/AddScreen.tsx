@@ -73,7 +73,7 @@ export default function LibraryScreen() {
             <Section title={t("add.creation")}>
                 <Item label={t("add.createRoadbook")} description={t("add.createRoadbook")}
                       onPress={() => router.push("/form-new-roadbook")} />
-                <Item label={t("add.createPlace")} description={t("add.createPlace")} />
+                <Item label={"Point"} description={"Creation d'un lieux"} onPress={() => router.push("/create-place")} />
             </Section>
         </View>
       </ScrollView>

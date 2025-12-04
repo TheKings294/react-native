@@ -203,20 +203,39 @@ export async function createRoadbook(payload: {
   template?: string;
   theme?: string | null;
   places?: number[];
-}) {
+})
+
+export type Place = {
+  id: number;
+  name: string;
+  description?: string;
+  latitude: number;
+  longitude: number;
+  address?: string;
+  city?: string;
+  region?: string;
+  country: string;
+  placeType: string;
+};
+
+export async function getPlaces() {
   const token = await getAuthToken();
   if (!token) {
     throw new Error('Utilisateur non authentifié.');
   }
-  return apiPost('/api/roadbooks', payload, token);
+  return apiGet<Place[]>('/api/places', token);
 }
 
 export async function getRoadbooks() {
+  return apiGet<Place[]>('/api/roadbook', token);
+}
+
+export async function createPlace(payload: Omit<Place, 'id'>) {
   const token = await getAuthToken();
   if (!token) {
     throw new Error('Utilisateur non authentifié.');
   }
-  return apiGet<RoadbookResponse[]>('/api/roadbooks', token);
+  return apiPost<Place>('/api/places', payload, token);
 }
 
 export type RoadbookResponse = {
@@ -239,3 +258,27 @@ export type RoadbookResponse = {
   favoriteCount?: number | null;
   places?: unknown[];
 };
+
+async function apiGet<T>(path: string, authToken?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'GET',
+    headers,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(resolveErrorMessage(data, response.status));
+  }
+
+  return data as T;
+}
