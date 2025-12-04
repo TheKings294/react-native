@@ -1,8 +1,9 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
-import { View } from "react-native";
+import { Tabs, Redirect } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useAuth } from "@/context/AuthContext";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -13,6 +14,19 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const { t } = useLanguage();
+  const { token, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (!token) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
   return (
     <Tabs
