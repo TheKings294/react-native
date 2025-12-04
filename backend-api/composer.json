@@ -42,7 +42,8 @@
             "App\\Repository\\" : "src/Repository",
             "App\\Controller\\" : "src/Controller",
             "App\\Security\\" : "src/Security",
-            "App\\Doctrine\\" : "src/Doctrine"
+            "App\\Doctrine\\" : "src/Doctrine",
+            "App\\DTO" : "src/Dto"
         }
     },
     "autoload-dev": {

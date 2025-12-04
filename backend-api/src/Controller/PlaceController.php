@@ -17,7 +17,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
-#[Route('/api/places', name: 'api_place_')]
+#[Route('/api/places')]
+#[OA\Tag(name: 'Places')]
 class PlaceController extends AbstractController
 {
     public function __construct(
@@ -248,7 +249,7 @@ class PlaceController extends AbstractController
         }
     }
 
-    #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', name: 'update', methods: ['PUT'])]
     #[OA\Put(
         path: '/api/places/{id}',
         description: 'Updates an existing place using the fields allowed in the serializer group `place:write`.',
