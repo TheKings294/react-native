@@ -40,6 +40,21 @@ export default function EditProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  const trimmedDisplayName = profile.displayName.trim() || null;
+  const trimmedUsername = profile.username.trim();
+  const trimmedBio = profile.bio.trim() || null;
+
+  const hasChanges = useMemo(() => {
+    if (!user) return false;
+    const userDisplayName = user.displayName || null;
+    const userBio = user.bio || null;
+    return (
+      trimmedUsername !== (user.username || "") ||
+      trimmedDisplayName !== userDisplayName ||
+      trimmedBio !== userBio
+    );
+  }, [trimmedUsername, trimmedDisplayName, trimmedBio, user]);
+
   useEffect(() => {
     if (user) {
       setProfile({
@@ -70,20 +85,24 @@ export default function EditProfileScreen() {
       Alert.alert("Erreur", t("common.errorAuth") || "Utilisateur non authentifié.");
       return;
     }
+    if (!hasChanges) {
+      Alert.alert("Info", t("profile.noChanges") || "No changes to save.");
+      return;
+    }
 
     try {
       setIsSaving(true);
       await updateUserProfile({
-        username: profile.username.trim(),
-        displayName: profile.displayName.trim() || null,
-        bio: profile.bio.trim() || null,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
       });
 
       const nextUser = {
         ...user,
-        username: profile.username.trim(),
-        displayName: profile.displayName.trim() || null,
-        bio: profile.bio.trim() || null,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
       };
       await setAuthData(token, nextUser);
 
@@ -184,9 +203,9 @@ export default function EditProfileScreen() {
           onPress={saveProfile}
           style={[
             styles.saveButton,
-            { backgroundColor: isValid ? colors.primary : colors.border },
+            { backgroundColor: isValid && hasChanges ? colors.primary : colors.border },
           ]}
-          disabled={!isValid || isSaving}
+          disabled={!isValid || isSaving || !hasChanges}
         >
           {isSaving ? (
             <ActivityIndicator color="black" />

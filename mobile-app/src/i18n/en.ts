@@ -35,6 +35,7 @@ export default {
     saveSuccess: "Profile updated successfully",
     saveError: "Unable to save.",
     usernameRequired: "Username is required.",
+    noChanges: "No changes to save.",
     userFallback: "User",
     unknownHandle: "@unknown",
     editInfoTitle: "Personal info",

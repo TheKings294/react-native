@@ -35,6 +35,7 @@ export default {
     saveSuccess: "Profil mis à jour avec succès",
     saveError: "Impossible de sauvegarder.",
     usernameRequired: "Le nom d'utilisateur est obligatoire.",
+    noChanges: "Aucune modification à enregistrer.",
     userFallback: "Utilisateur",
     unknownHandle: "@inconnu",
     editInfoTitle: "Infos personnelles",
