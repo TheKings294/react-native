@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
+import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,Alert,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -38,7 +30,6 @@ export default function EditProfileScreen() {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
 
-  // ✅ charger profil existant au montage
   useEffect(() => {
     (async () => {
       try {
@@ -59,7 +50,6 @@ export default function EditProfileScreen() {
   };
 
   const isValid = useMemo(() => {
-    // validation simple
     if (!profile.name.trim()) return false;
     if (!profile.username.trim()) return false;
     return true;
@@ -73,9 +63,8 @@ export default function EditProfileScreen() {
 
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      Alert.alert("Succès", "Profil mis à jour ✅");
+      Alert.alert("Succès", "Profil mis à jour avec succès");
 
-      // ✅ on retourne au settings (ou back)
       router.back();
     } catch (e) {
       Alert.alert("Erreur", "Impossible de sauvegarder.");
@@ -115,7 +104,7 @@ export default function EditProfileScreen() {
           <TextInput
             value={profile.name}
             onChangeText={(v) => updateField("name", v)}
-            placeholder="Ex: Mourad"
+            placeholder="Ex: John Doe"
             placeholderTextColor={colors.text + "88"}
             style={[
               styles.input,
@@ -127,7 +116,7 @@ export default function EditProfileScreen() {
           <TextInput
             value={profile.username}
             onChangeText={(v) => updateField("username", v)}
-            placeholder="@Mourad9101"
+            placeholder="@JohnDoe11"
             placeholderTextColor={colors.text + "88"}
             style={[
               styles.input,
@@ -153,7 +142,7 @@ export default function EditProfileScreen() {
           <TextInput
             value={profile.email}
             onChangeText={(v) => updateField("email", v)}
-            placeholder="exemple@email.com"
+            placeholder="exemple@gmail.com"
             placeholderTextColor={colors.text + "88"}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -167,7 +156,7 @@ export default function EditProfileScreen() {
           <TextInput
             value={profile.phone}
             onChangeText={(v) => updateField("phone", v)}
-            placeholder="+33 6 00 00 00 00"
+            placeholder="+33"
             placeholderTextColor={colors.text + "88"}
             keyboardType="phone-pad"
             style={[

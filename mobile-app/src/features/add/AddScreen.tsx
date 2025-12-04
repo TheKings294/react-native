@@ -1,22 +1,20 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import {View,Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LibraryScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { t } = useLanguage();
+  const { user } = useAuth();
+
+  const displayName = user?.displayName || user?.username || "Utilisateur";
+  const usernameLabel = user?.username ? `@${user.username}` : user?.email || "Profil";
 
   return (
     <SafeAreaView
@@ -38,10 +36,10 @@ export default function LibraryScreen() {
 
           <View>
             <Text style={[styles.username, { color: colors.text }]}>
-              @user.username
+              {displayName}
             </Text>
             <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>
-              1 adresse
+              {usernameLabel}
             </Text>
           </View>
         </View>

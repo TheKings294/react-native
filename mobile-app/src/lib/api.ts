@@ -4,6 +4,21 @@ const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 type JsonMap = Record<string, unknown>;
 
+function resolveErrorMessage(data: unknown, status: number) {
+  if (!data) return `Request failed with status ${status}`;
+  if (typeof data === 'string') return data;
+  if (typeof data === 'object') {
+    const maybeError = (data as JsonMap).error;
+    const maybeMessage = (data as JsonMap).message;
+    const maybeErrors = (data as JsonMap).errors;
+    if (typeof maybeError === 'string') return maybeError;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+    if (typeof maybeErrors === 'string') return maybeErrors;
+    return JSON.stringify(data);
+  }
+  return String(data);
+}
+
 async function apiPost<T>(path: string, body: JsonMap, authToken?: string): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -23,11 +38,57 @@ async function apiPost<T>(path: string, body: JsonMap, authToken?: string): Prom
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message =
-      (data as JsonMap | null)?.error ||
-      (data as JsonMap | null)?.message ||
-      `Request failed with status ${response.status}`;
-    throw new Error(String(message));
+    throw new Error(resolveErrorMessage(data, response.status));
+  }
+
+  return data as T;
+}
+
+async function apiPut<T>(path: string, body: JsonMap, authToken?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(resolveErrorMessage(data, response.status));
+  }
+
+  return data as T;
+}
+
+async function apiPatch<T>(path: string, body: JsonMap, authToken?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(resolveErrorMessage(data, response.status));
   }
 
   return data as T;
@@ -80,4 +141,28 @@ export async function apiPostWithAuth<T>(path: string, body: JsonMap) {
     throw new Error('Utilisateur non authentifié.');
   }
   return apiPost<T>(path, body, token);
+}
+
+export type UpdateUserProfilePayload = {
+  username?: string | null;
+  displayName?: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  isProfilePublic?: boolean | null;
+};
+
+export async function updateUserProfile(payload: UpdateUserProfilePayload) {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error('Utilisateur non authentifié.');
+  }
+  return apiPut<{ message: string }>('/api/user/update', payload, token);
+}
+
+export async function updateUserPassword(payload: { oldPassword: string; newPassword: string }) {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error('Utilisateur non authentifié.');
+  }
+  return apiPatch<{ message: string }>('/api/user/update-password', payload, token);
 }

@@ -4,11 +4,14 @@ import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useAuth } from "@/context/AuthContext";
 
 export default function MapScreen() {
   const { colors } = useTheme();
-  const { t } = useLanguage();
+  const { user } = useAuth();
+
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
+  const usernameLabel = user?.username ? `@${user.username}` : user?.email || "Profil";
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -42,10 +45,10 @@ export default function MapScreen() {
 
           <View>
             <Text style={[styles.username, { color: colors.text }]}>
-              @user.username
+              {displayName}
             </Text>
             <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>
-              1 adresse
+              {usernameLabel}
             </Text>
           </View>
 
