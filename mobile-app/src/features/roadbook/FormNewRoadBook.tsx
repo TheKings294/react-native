@@ -6,13 +6,18 @@ import {View,
     StyleSheet, Alert, ActivityIndicator} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {useState} from "react";
-import { useLanguage } from "@/providers/LanguageProvider";
-import { createRoadbook } from "@/lib/api";
-import { useRouter } from "expo-router";
+import { Picker } from '@react-native-picker/picker';
+import {createRoadBook, CreateRoadBookPayload} from "@/lib/api";
 
 function FormNewRoadBook() {
-    const { t } = useLanguage();
-    const router = useRouter();
+    type TemplateType =
+        | 'SIMPLE'
+        | 'TRAVEL_DIARY'
+        | 'PHOTO_ALBUM'
+        | 'MAGAZINE'
+        | 'MINIMALIST'
+        | 'CLASSIC';
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [coverImage, setCoverImage] = useState("");
@@ -33,7 +38,7 @@ function FormNewRoadBook() {
     const [isPublished, setIsPublished] = useState(false);
     const [isPublic, setIsPublic] = useState(false);
 
-    const [template, setTemplate] = useState("SIMPLE");
+    const [template, setTemplate] = useState<TemplateType>('SIMPLE');
     const [theme, setTheme] = useState("default");
     const [isSaving, setIsSaving] = useState(false);
 
@@ -89,6 +94,8 @@ function FormNewRoadBook() {
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <Text style={styles.title}>{t("add.formTitle")}</Text>
 
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
             {/* Title */}
             <Text style={styles.label}>{t("add.titleLabel")}</Text>
             <TextInput
@@ -137,6 +144,7 @@ function FormNewRoadBook() {
                 <DateTimePicker
                     value={new Date()}
                     mode="date"
+                    textColor="black"
                     onChange={(e, date) => {
                         setShowDatePicker(null);
                         if (!date) return;
@@ -231,12 +239,20 @@ function FormNewRoadBook() {
             </Pressable>
 
             {/* Template */}
-            <Text style={styles.label}>{t("add.templateLabel")}</Text>
-            <TextInput
-                style={styles.input}
-                value={template}
-                onChangeText={setTemplate}
-            />
+            <Text style={styles.label}>Template</Text>
+            <Picker
+                selectedValue={template}
+                onValueChange={(itemValue) => setTemplate(itemValue)}
+                style={[styles.input, { color: 'black' }]}
+                dropdownIconColor="black"
+            >
+                <Picker.Item label="Simple" value="SIMPLE" color={"black"} />
+                <Picker.Item label="Travel Diary" value="TRAVEL_DIARY" color={"black"} />
+                <Picker.Item label="Photo Album" value="PHOTO_ALBUM" color={"black"} />
+                <Picker.Item label="Magazine" value="MAGAZINE" color={"black"} />
+                <Picker.Item label="Minimalist" value="MINIMALIST" color={"black"} />
+                <Picker.Item label="Classic" value="CLASSIC" color={"black"} />
+            </Picker>
 
             {/* Theme */}
             <Text style={styles.label}>{t("add.themeLabel")}</Text>
@@ -310,6 +326,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: "600",
     },
+    error: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });
 
 

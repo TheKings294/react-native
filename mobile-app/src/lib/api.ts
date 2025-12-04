@@ -1,4 +1,5 @@
 import { getAuthToken } from './authStorage';
+import {RoadBook} from "@/model/RaodBook";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -173,6 +174,20 @@ export type UpdateUserProfilePayload = {
   avatar?: string | null;
   isProfilePublic?: boolean | null;
 };
+
+export type CreateRoadBookPayload = {
+    title: string;
+    description: string;
+    coverImage?: string | null;
+    startDate?: Date;
+    endDate?: Date;
+    countries: string[];
+    tags: string[];
+    isPublished: boolean;
+    isPublic: boolean;
+    template: string;
+    theme: string;
+}
 
 export async function updateUserProfile(payload: UpdateUserProfilePayload) {
   const token = await getAuthToken();
