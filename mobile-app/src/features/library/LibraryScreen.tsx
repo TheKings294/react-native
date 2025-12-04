@@ -2,13 +2,17 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import {useState} from "react";
-import {RoadBook} from "@/model/RaodBook"
-import RoadBookList from "@/components/roadbook-list";
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { RoadBook } from '@/model/RaodBook';
+import RoadBookList from '@/components/roadbook-list';
 
 export default function LibraryScreen() {
   const router = useRouter();
   const [tab, setTab] = useState(1);
+  const { user } = useAuth();
+  const username = user?.username ? `@${user.username}` : '@inconnu';
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
   const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
       {
           id: 1,
@@ -41,7 +45,7 @@ export default function LibraryScreen() {
   ]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
@@ -51,17 +55,23 @@ export default function LibraryScreen() {
                 </View>
             </TouchableOpacity>
             <View>
-                <Text style={styles.username}>@user.username</Text>
-                <Text style={styles.address}>1 adresse</Text>
+                <Text style={styles.username}>{displayName}</Text>
+                <Text style={styles.address}>{username}</Text>
             </View>
         </View>
+
         <View style={styles.headerIcons}>
-             <TouchableOpacity>
-                <FontAwesome name="question-circle-o" size={24} color="black" style={{marginRight: 15}} />
-             </TouchableOpacity>
-             <TouchableOpacity>
-                <FontAwesome name="upload" size={24} color="black" />
-             </TouchableOpacity>
+          <TouchableOpacity>
+            <FontAwesome
+              name="question-circle-o"
+              size={24}
+              color={colors.text}
+              style={{ marginRight: 15 }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <FontAwesome name="upload" size={24} color={colors.text} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -76,9 +86,23 @@ export default function LibraryScreen() {
       </View>
 
       {/* Search */}
-      <View style={styles.searchContainer}>
-        <FontAwesome name="search" size={16} color="#999" style={styles.searchIcon} />
-        <TextInput placeholder="Recherche..." style={styles.searchInput} />
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: colors.card },
+        ]}
+      >
+        <FontAwesome
+          name="search"
+          size={16}
+          color={colors.text}
+          style={[styles.searchIcon, { opacity: 0.5 }]}
+        />
+        <TextInput
+          placeholder="Recherche..."
+          placeholderTextColor={colors.text + "99"} // ~60% opacity
+          style={[styles.searchInput, { color: colors.text }]}
+        />
       </View>
 
       {/* Content */}
@@ -130,26 +154,78 @@ export default function LibraryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center' },
-  userInfo: { flexDirection: 'row', alignItems: 'center' },
-  avatarPlaceholder: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#ddd', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
-  username: { fontWeight: 'bold' },
-  address: { color: '#666', fontSize: 12 },
-  headerIcons: { flexDirection: 'row' },
-  tabContainer: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  tab: { flex: 1, padding: 15, alignItems: 'center' },
-  activeTab: { borderBottomWidth: 2, borderBottomColor: '#000' },
-  tabText: { color: '#666' },
-  tabTextActive: { fontWeight: 'bold', color: '#000' },
-  searchContainer: { flexDirection: 'row', margin: 15, backgroundColor: '#f0f0f0', padding: 10, borderRadius: 10, alignItems: 'center' },
+  container: { flex: 1 },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    alignItems: "center",
+  },
+  userInfo: { flexDirection: "row", alignItems: "center" },
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  username: { fontWeight: "bold" },
+  address: { fontSize: 12 },
+  headerIcons: { flexDirection: "row" },
+
+  tabContainer: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+  },
+  tab: { flex: 1, padding: 15, alignItems: "center" },
+  activeTab: { borderBottomWidth: 2 },
+  tabText: {},
+  tabTextActive: { fontWeight: "bold" },
+
+  searchContainer: {
+    flexDirection: "row",
+    margin: 15,
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
   searchIcon: { marginRight: 10 },
   searchInput: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 100 }, // Padding for bottom tab
-  emptyState: { alignItems: 'center', marginTop: 50 },
-  emptyIconContainer: { marginBottom: 20, alignItems: 'center' },
-  hashtagBubble: { position: 'absolute', top: -10, right: -20, backgroundColor: '#fff', borderWidth: 2, borderColor: '#000', borderRadius: 10, width: 30, height: 30, justifyContent: 'center', alignItems: 'center' },
-  hashtagText: { fontWeight: 'bold' },
-  emptyText: { textAlign: 'center', fontSize: 16, maxWidth: 250, marginBottom: 30 },
-  addFriendButton: { flexDirection: 'row', backgroundColor: '#eee', padding: 10, borderRadius: 20, alignItems: 'center' },
+
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 100,
+  },
+  emptyState: { alignItems: "center", marginTop: 50 },
+  emptyIconContainer: { marginBottom: 20, alignItems: "center" },
+
+  hashtagBubble: {
+    position: "absolute",
+    top: -10,
+    right: -20,
+    borderWidth: 2,
+    borderRadius: 10,
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  hashtagText: { fontWeight: "bold" },
+
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    maxWidth: 250,
+    marginBottom: 30,
+  },
+  addFriendButton: {
+    flexDirection: "row",
+    padding: 10,
+    borderRadius: 20,
+    alignItems: "center",
+  },
 });
