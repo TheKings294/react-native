@@ -7,7 +7,7 @@ import { useTheme } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { colors } = useTheme();
 
   const username = user?.username ? `@${user.username}` : '@inconnu';
@@ -70,18 +70,17 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.card }]}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.card }]}
+          onPress={() => router.push("/edit-profile")}
+        >
           <Text style={[styles.buttonText, { color: colors.text }]}>
             Modifier mon profil
           </Text>
         </TouchableOpacity>
       </View>
 
-          <View style={styles.logoutContainer}>
-              <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-                  <Text style={styles.logoutText}>Se déconnecter</Text>
-              </TouchableOpacity>
-          </View>
+      <View style={styles.logoutContainer}>
       </View>
 
     </SafeAreaView>
@@ -127,7 +126,4 @@ const styles = StyleSheet.create({
   button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
   buttonText: { fontWeight: '500' },
   logoutContainer: { paddingHorizontal: 20, marginTop: 30 },
-  logoutButton: { backgroundColor: '#ddd', padding: 12, borderRadius: 8, alignItems: 'center' },
-  logoutText: { fontWeight: '600' },
-    email: {color: '#666', marginTop: 4}
 });
