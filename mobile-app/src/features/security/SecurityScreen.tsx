@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { updateUserProfile, updateUserPassword } from "@/lib/api";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type PrivacySettings = {
   privateAccount: boolean;
@@ -16,6 +17,7 @@ const DEFAULT_PRIVACY: PrivacySettings = {
 export default function SecurityScreen() {
   const { colors } = useTheme();
   const { user, token, setAuthData } = useAuth();
+  const { t } = useLanguage();
 
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
   const [currentPwd, setCurrentPwd] = useState("");
@@ -37,7 +39,7 @@ export default function SecurityScreen() {
 
   const togglePrivacy = async (key: keyof PrivacySettings, v: boolean) => {
     if (!token || !user) {
-      Alert.alert("Erreur", "Utilisateur non authentifié.");
+      Alert.alert("Erreur", t("security.errorAuth"));
       return;
     }
     if (key !== "privateAccount") return;
@@ -51,7 +53,7 @@ export default function SecurityScreen() {
       await setAuthData(token, { ...user, isProfilePublic });
     } catch (e) {
       setPrivacy(privacy);
-      const message = e instanceof Error ? e.message : "Impossible de mettre à jour.";
+      const message = e instanceof Error ? e.message : t("common.comingSoon");
       Alert.alert("Erreur", message);
     } finally {
       setIsSavingPrivacy(false);
@@ -60,24 +62,21 @@ export default function SecurityScreen() {
 
   const handleChangePassword = async () => {
     if (!token) {
-      Alert.alert("Erreur", "Utilisateur non authentifié.");
+      Alert.alert("Erreur", t("security.errorAuth"));
       return;
     }
     if (!currentPwd.trim()) {
-      Alert.alert("Erreur", "Merci de renseigner votre mot de passe actuel.");
+      Alert.alert("Erreur", t("security.currentPasswordRequired"));
       return;
     }
     try {
       if (newPwd.trim().length < 6) {
-        Alert.alert(
-          "Erreur",
-          "Le nouveau mot de passe doit faire au moins 6 caractères."
-        );
+        Alert.alert("Erreur", t("security.minLength"));
         return;
       }
 
       if (newPwd !== confirmPwd) {
-        Alert.alert("Erreur", "La confirmation ne correspond pas.");
+        Alert.alert("Erreur", t("security.mismatch"));
         return;
       }
 
@@ -89,11 +88,11 @@ export default function SecurityScreen() {
       setConfirmPwd("");
       setShowPasswordModal(false);
 
-      Alert.alert("Succès", "Mot de passe mis à jour ");
+      Alert.alert("Succès", t("security.success"));
       setShowPasswordModal(false);
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Impossible de sauvegarder le mot de passe.";
+        e instanceof Error ? e.message : t("security.saveError") || "Impossible de sauvegarder le mot de passe.";
       Alert.alert("Erreur", message);
     } finally {
       setIsSavingPassword(false);
@@ -103,7 +102,7 @@ export default function SecurityScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Chargement...</Text>
+        <Text style={{ color: colors.text }}>{t("common.loading")}</Text>
       </SafeAreaView>
     );
   }
@@ -113,14 +112,14 @@ export default function SecurityScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Sécurité</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("security.title")}</Text>
         <Text
           style={[
             styles.sectionTitle,
             { color: colors.text, opacity: 0.7 },
           ]}
         >
-          Mot de passe
+          {t("security.passwordSection")}
         </Text>
 
       <View
@@ -131,9 +130,9 @@ export default function SecurityScreen() {
         >
           <Pressable style={styles.row} onPress={() => setShowPasswordModal(true)}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.text, fontWeight: "700" }}>Changer le mot de passe</Text>
+              <Text style={{ color: colors.text, fontWeight: "700" }}>{t("security.changePassword")}</Text>
               <Text style={{ color: colors.text, opacity: 0.6, fontSize: 12 }}>
-                Modifier ton mot de passe
+                {t("security.changePasswordDesc")}
               </Text>
             </View>
             <Text style={[styles.chevron, { color: colors.text, opacity: 0.5 }]}>›</Text>
@@ -146,20 +145,20 @@ export default function SecurityScreen() {
             { color: colors.text, opacity: 0.7 },
           ]}
         >
-          Confidentialité
+          {t("security.privacy")}
         </Text>
 
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <Row
-            label="Compte privé"
-            desc="Seuls tes abonnés voient ton contenu"
+            label={t("security.privateAccount")}
+            desc={t("security.privateDesc")}
             value={privacy.privateAccount}
             onChange={(v) => togglePrivacy("privateAccount", v)}
             colors={colors}
           />
           {isSavingPrivacy && (
             <Text style={{ color: colors.text, opacity: 0.6, marginTop: 8 }}>
-              Mise à jour...
+              {t("security.updating")}
             </Text>
           )}
         </View>
@@ -173,10 +172,10 @@ export default function SecurityScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Modifier le mot de passe</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{t("security.modalTitle")}</Text>
 
             <TextInput
-              placeholder="Mot de passe actuel"
+              placeholder={t("security.currentPassword")}
               secureTextEntry
               value={currentPwd}
               onChangeText={setCurrentPwd}
@@ -188,7 +187,7 @@ export default function SecurityScreen() {
             />
 
             <TextInput
-              placeholder="Nouveau mot de passe"
+              placeholder={t("security.newPassword")}
               secureTextEntry
               value={newPwd}
               onChangeText={setNewPwd}
@@ -200,7 +199,7 @@ export default function SecurityScreen() {
             />
 
             <TextInput
-              placeholder="Confirmer le nouveau mot de passe"
+              placeholder={t("security.confirmPassword")}
               secureTextEntry
               value={confirmPwd}
               onChangeText={setConfirmPwd}
@@ -217,11 +216,11 @@ export default function SecurityScreen() {
                   styles.saveBtn,
                   { flex: 1, backgroundColor: colors.border },
                 ]}
-                onPress={() => setShowPasswordModal(false)}
-                disabled={isSavingPassword}
-              >
-                <Text style={{ color: colors.text, fontWeight: "700" }}>
-                  Annuler
+              onPress={() => setShowPasswordModal(false)}
+              disabled={isSavingPassword}
+            >
+              <Text style={{ color: colors.text, fontWeight: "700" }}>
+                  {t("security.cancel")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -236,7 +235,7 @@ export default function SecurityScreen() {
                   <ActivityIndicator color="white" />
                 ) : (
                   <Text style={{ color: "white", fontWeight: "700" }}>
-                    Enregistrer
+                    {t("security.save")}
                   </Text>
                 )}
               </TouchableOpacity>

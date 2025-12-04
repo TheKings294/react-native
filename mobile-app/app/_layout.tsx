@@ -23,9 +23,13 @@ function NavigationRoot() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           <Stack.Screen name="roadbook" options={{ title: 'Roadbook' }} />
-          <Stack.Screen name="settings" options={{ title: t("settings.title") }} />
-          <Stack.Screen name="security" options={{ title: t("settings.security") }} />
-          <Stack.Screen name="edit-profile" options={{ title: t("profile.editProfile") }} />
+          <Stack.Screen name="settings" options={{ title: lang === "en" ? "Settings" : t("settings.title") }} />
+          <Stack.Screen name="security" options={{ title: lang === "en" ? "Security" : t("settings.security") }} />
+          <Stack.Screen name="profile" options={{ title: lang === "en" ? "Profile" : "Profil" }} />
+          <Stack.Screen
+            name="edit-profile"
+            options={{ title: t("profile.editProfile") }}
+          />
           <Stack.Screen
             name="form-new-roadbook"
             options={{ title: "Roadbook" }}

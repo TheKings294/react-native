@@ -21,7 +21,7 @@ export default {
   },
 
   profile: {
-    editProfile: "Modifier mon profil",
+    editProfile: "Modifier le profil",
     shareMap: "Partager ma carte",
     places: "Lieux",
     following: "Abonnements",
@@ -89,6 +89,28 @@ export default {
     errorAuth: "Utilisateur non authentifié.",
     cancel: "Annuler",
     loading: "Chargement...",
+  },
+
+  security: {
+    title: "Sécurité",
+    passwordSection: "Mot de passe",
+    changePassword: "Changer le mot de passe",
+    changePasswordDesc: "Modifier ton mot de passe",
+    privacy: "Confidentialité",
+    privateAccount: "Compte privé",
+    privateDesc: "Seuls tes abonnés voient ton contenu",
+    updating: "Mise à jour...",
+    modalTitle: "Modifier le mot de passe",
+    currentPassword: "Mot de passe actuel",
+    newPassword: "Nouveau mot de passe",
+    confirmPassword: "Confirmer le nouveau mot de passe",
+    errorAuth: "Utilisateur non authentifié.",
+    currentPasswordRequired: "Merci de renseigner votre mot de passe actuel.",
+    minLength: "Le nouveau mot de passe doit faire au moins 6 caractères.",
+    mismatch: "La confirmation ne correspond pas.",
+    success: "Mot de passe mis à jour.",
+    save: "Enregistrer",
+    cancel: "Annuler",
   },
 
 tabs: {

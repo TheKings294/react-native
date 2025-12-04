@@ -91,6 +91,28 @@ export default {
     loading: "Loading...",
   },
 
+  security: {
+    title: "Security",
+    passwordSection: "Password",
+    changePassword: "Change password",
+    changePasswordDesc: "Update your password",
+    privacy: "Privacy",
+    privateAccount: "Private account",
+    privateDesc: "Only followers can see your content",
+    updating: "Updating...",
+    modalTitle: "Change password",
+    currentPassword: "Current password",
+    newPassword: "New password",
+    confirmPassword: "Confirm new password",
+    errorAuth: "User not authenticated.",
+    currentPasswordRequired: "Please enter your current password.",
+    minLength: "New password must be at least 6 characters.",
+    mismatch: "Confirmation does not match.",
+    success: "Password updated.",
+    save: "Save",
+    cancel: "Cancel",
+  },
+
   tabs: {
     library: "Library",
     map: "My map",
