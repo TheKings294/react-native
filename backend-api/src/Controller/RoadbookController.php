@@ -130,7 +130,7 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
-        $roadbook->setUserId($user);
+        $roadbook->setUserId($user->getId());
 
         // Add places if provided
         if (isset($data['places']) && is_array($data['places'])) {
@@ -160,6 +160,10 @@ class RoadbookController extends AbstractController
 
     #[Route('/{id}', name: 'api_roadbooks_update', methods: ['PUT', 'PATCH'])]
     #[OA\Put(
+        description: 'Updates an existing roadbook',
+        summary: 'Update a roadbook',
+    )]
+    #[OA\Patch(
         description: 'Updates an existing roadbook',
         summary: 'Update a roadbook',
     )]
