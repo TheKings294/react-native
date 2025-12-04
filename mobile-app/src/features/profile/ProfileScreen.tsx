@@ -77,10 +77,11 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-              <Text style={styles.logoutText}>Se déconnecter</Text>
-          </TouchableOpacity>
+          <View style={styles.logoutContainer}>
+              <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+                  <Text style={styles.logoutText}>Se déconnecter</Text>
+              </TouchableOpacity>
+          </View>
       </View>
 
     </SafeAreaView>
@@ -128,4 +129,5 @@ const styles = StyleSheet.create({
   logoutContainer: { paddingHorizontal: 20, marginTop: 30 },
   logoutButton: { backgroundColor: '#ddd', padding: 12, borderRadius: 8, alignItems: 'center' },
   logoutText: { fontWeight: '600' },
+    email: {color: '#666', marginTop: 4}
 });
