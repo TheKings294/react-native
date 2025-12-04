@@ -1,0 +1,1134 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "spotChat",
+        "description": "Api for spotChat app in reactNative",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authenticate a user and return a token",
+                "description": "This endpoint authenticates a user via Symfony security and returns user info + a token if credentials are valid.",
+                "operationId": "post_api_login",
+                "requestBody": {
+                    "description": "User login credentials",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "johnny"
+                                                },
+                                                "displayName": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": "https://example.com/avatar.jpg",
+                                                    "nullable": true
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Full-stack developer",
+                                                    "nullable": true
+                                                },
+                                                "isProfilePublic": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "lastLoginAt": {
+                                                    "type": "string",
+                                                    "example": "2025-03-20 14:30:12",
+                                                    "nullable": true
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "Hello"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/places": {
+            "get": {
+                "tags": [
+                    "Places"
+                ],
+                "summary": "List or search places",
+                "description": "Returns a list of places. You can search by city, by place type, or by geographic coordinates + radius.",
+                "operationId": "get_list",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (pagination)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "placeType",
+                        "in": "query",
+                        "description": "Filter by place type (example: bar, club)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "bar"
+                        }
+                    },
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Filter by city name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Paris"
+                        }
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "query",
+                        "description": "Latitude for geolocation search",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "example": 48.8566
+                        }
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "query",
+                        "description": "Longitude for geolocation search",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "example": 2.3522
+                        }
+                    },
+                    {
+                        "name": "radius",
+                        "in": "query",
+                        "description": "Search radius in kilometers (default: 10km)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of places",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Place"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Create a new place",
+                "description": "Creates a new place using the fields allowed in the serializer group `place:write`.",
+                "operationId": "post_create",
+                "requestBody": {
+                    "description": "Place data to create",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Place"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Place created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Place"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation errors or invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": "This value should not be blank.",
+                                                "latitude": "This value should be a valid number."
+                                            }
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid data: unexpected field"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/places/{id}": {
+            "get": {
+                "tags": [
+                    "Places"
+                ],
+                "operationId": "get_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Update an existing place",
+                "description": "Updates an existing place using the fields allowed in the serializer group `place:write`.",
+                "operationId": "put_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the place to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 12
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Updated place data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Place"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Place updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Place"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Place not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Place not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation errors or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": "This value should not be blank.",
+                                                "latitude": "This value should be a valid number."
+                                            }
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid data: Unexpected field."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Delete a place",
+                "description": "Deletes an existing place by its ID.",
+                "operationId": "delete_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the place to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 42
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Place deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Place deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Place not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Place not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/places/search": {
+            "get": {
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Search places",
+                "description": "Searches for places by name, description, or city. Returns up to 50 results ordered by rating.",
+                "operationId": "get_search",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search text (partial match). Example: bar, club, paris...",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "cocktail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Search results for matching places",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Place"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing search query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Search query is required"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Registration"
+                ],
+                "summary": "Register a new user",
+                "description": "Creates a new user account after validating email, username, and password.",
+                "operationId": "post_register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "john_doe"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "strongPassword123"
+                                    },
+                                    "displayName": {
+                                        "type": "string",
+                                        "example": "John",
+                                        "nullable": true
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Hello, I'm John!",
+                                        "nullable": true
+                                    },
+                                    "isProfilePublic": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 12
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "john_doe"
+                                                },
+                                                "displayName": {
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "createdAt": {
+                                                    "type": "string",
+                                                    "example": "2025-01-01 12:00:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or missing required fields",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Missing required fields: email, username, and password are required"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "User already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "This email is already registered"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Registration failed: Some error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/check-email": {
+            "post": {
+                "tags": [
+                    "Registration"
+                ],
+                "operationId": "post_check_email",
+                "responses": {
+                    "default": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/check-username": {
+            "post": {
+                "tags": [
+                    "Registration"
+                ],
+                "operationId": "post_check_username",
+                "responses": {
+                    "default": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/roadbooks": {
+            "get": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Get all roadbooks for the authenticated user",
+                "description": "Returns a list of all roadbooks created by the authenticated user",
+                "operationId": "get_api_roadbooks_list",
+                "responses": {
+                    "200": {
+                        "description": "List of roadbooks",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Roadbook"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Create a new roadbook",
+                "description": "Creates a new roadbook for the authenticated user",
+                "operationId": "post_api_roadbooks_create",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "My Summer Trip"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "A beautiful road trip through Europe"
+                                    },
+                                    "places": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Roadbook created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Roadbook"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/roadbooks/{id}": {
+            "get": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Get a specific roadbook",
+                "description": "Returns details of a specific roadbook",
+                "operationId": "get_api_roadbooks_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Roadbook ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Roadbook details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Roadbook"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Roadbook not found"
+                    },
+                    "403": {
+                        "description": "Access denied"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Update a roadbook",
+                "description": "Updates an existing roadbook",
+                "operationId": "put_api_roadbooks_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Roadbook ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Updated Trip Title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description"
+                                    },
+                                    "places": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            3,
+                                            5
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Roadbook updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Roadbook"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Roadbook not found"
+                    },
+                    "403": {
+                        "description": "Access denied"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Delete a roadbook",
+                "description": "Deletes a roadbook",
+                "operationId": "delete_api_roadbooks_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Roadbook ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Roadbook deleted successfully"
+                    },
+                    "404": {
+                        "description": "Roadbook not found"
+                    },
+                    "403": {
+                        "description": "Access denied"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Update a roadbook",
+                "description": "Updates an existing roadbook",
+                "operationId": "patch_api_roadbooks_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Roadbook ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Updated Trip Title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description"
+                                    },
+                                    "places": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            3,
+                                            5
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Roadbook updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Roadbook"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Roadbook not found"
+                    },
+                    "403": {
+                        "description": "Access denied"
+                    }
+                }
+            }
+        },
+        "/api/roadbooks/search": {
+            "get": {
+                "tags": [
+                    "Roadbooks"
+                ],
+                "summary": "Search roadbooks",
+                "description": "Search roadbooks by title",
+                "operationId": "get_api_roadbooks_search",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Search results",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Roadbook"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/update": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update the authenticated user profile",
+                "description": "Allows the authenticated user to update their username, display name, avatar, bio, or visibility.",
+                "operationId": "put_api_user_update",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "displayName": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "isProfilePublic": {
+                                        "type": "boolean",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/update-password": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update the authenticated user password",
+                "description": "Requires the current password and a new password.",
+                "operationId": "patch_api_user_update_password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "oldPassword",
+                                    "newPassword"
+                                ],
+                                "properties": {
+                                    "oldPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Invalid credentials or unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a user",
+                "description": "Allows a user to delete their own account. Admins may delete any account.",
+                "operationId": "delete_api_user_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the user to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 trying to delete another user without admin role"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Place": {
+                "type": "object"
+            },
+            "Roadbook": {
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Places"
+        },
+        {
+            "name": "Registration"
+        },
+        {
+            "name": "Roadbooks"
+        },
+        {
+            "name": "Users"
+        },
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        }
+    ]
+}

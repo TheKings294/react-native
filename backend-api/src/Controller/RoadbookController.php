@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
@@ -44,9 +45,11 @@ class RoadbookController extends AbstractController
         )
     )]
     #[OA\Response(response: 401, description: 'Unauthorized')]
+    #[IsGranted('ROLE_USER')]
     public function list(): JsonResponse
     {
         $user = $this->getUser();
+
         $roadbooks = $this->roadbookRepository->findByUser($user);
 
         return $this->json($roadbooks, Response::HTTP_OK, [], [
@@ -73,6 +76,7 @@ class RoadbookController extends AbstractController
     )]
     #[OA\Response(response: 404, description: 'Roadbook not found')]
     #[OA\Response(response: 403, description: 'Access denied')]
+    #[IsGranted('ROLE_USER')]
     public function show(int $id): JsonResponse
     {
         $user = $this->getUser();
@@ -117,6 +121,7 @@ class RoadbookController extends AbstractController
     )]
     #[OA\Response(response: 400, description: 'Invalid input')]
     #[OA\Response(response: 401, description: 'Unauthorized')]
+    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -125,7 +130,7 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
-        $roadbook->setUserId($user);
+        $roadbook->setUserId($user->getId());
 
         // Add places if provided
         if (isset($data['places']) && is_array($data['places'])) {
@@ -158,6 +163,10 @@ class RoadbookController extends AbstractController
         description: 'Updates an existing roadbook',
         summary: 'Update a roadbook',
     )]
+    #[OA\Patch(
+        description: 'Updates an existing roadbook',
+        summary: 'Update a roadbook',
+    )]
     #[OA\Parameter(
         name: 'id',
         description: 'Roadbook ID',
@@ -187,6 +196,7 @@ class RoadbookController extends AbstractController
     )]
     #[OA\Response(response: 404, description: 'Roadbook not found')]
     #[OA\Response(response: 403, description: 'Access denied')]
+    #[IsGranted('ROLE_USER')]
     public function update(int $id, Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -294,6 +304,7 @@ class RoadbookController extends AbstractController
             items: new OA\Items(ref: new Model(type: Roadbook::class, groups: ['roadbook:list']))
         )
     )]
+    #[IsGranted('ROLE_USER')]
     public function search(Request $request): JsonResponse
     {
         $query = $request->query->get('q', '');

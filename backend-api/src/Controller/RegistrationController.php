@@ -15,7 +15,10 @@ use OpenApi\Attributes as OA;
 use OpenApi\Attributes\Response as Res;
 use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Property;
+use function Symfony\Component\Clock\now;
 
+#[Route('/api/auth')]
+#[OA\Tag(name: 'Registration')]
 class RegistrationController extends AbstractController
 {
     public function __construct(
@@ -24,7 +27,7 @@ class RegistrationController extends AbstractController
         private ValidatorInterface $validator
     ) {}
 
-    #[Route('/api/auth/register', name: 'register', methods: ['POST'])]
+    #[Route('/register', name: 'register', methods: ['POST'])]
     #[OA\Post(
         path: "/api/auth/register",
         description: "Creates a new user account after validating email, username, and password.",
@@ -159,6 +162,10 @@ class RegistrationController extends AbstractController
                 }
                 return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
             }
+
+            $user->setRoles(['ROLE_USER']);
+            $user->setCreatedAt(new \DateTimeImmutable());
+            $user->setUpdatedAt(new \DateTimeImmutable());
 
             // Save user
             $this->userRepository->save($user, true);

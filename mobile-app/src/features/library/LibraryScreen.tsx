@@ -1,20 +1,44 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useTheme } from "@react-navigation/native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import {useState} from "react";
+import {RoadBook} from "@/model/RaodBook"
+import RoadBookList from "@/components/roadbook-list";
 
 export default function LibraryScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const [tab, setTab] = useState(1);
+  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
+      {
+          id: 1,
+          userId: 1,
+          title: "Hello",
+          description: "Hello",
+          coverImageURL: "https://picsum.photos/200/300",
+          startDate: new Date("2025-11-29"),
+          endDate: new Date("2025-12-29"),
+          countries: [
+              "France",
+              "Angleterre"
+          ],
+          tags: [
+              "Van",
+              "Wine",
+          ],
+          isPublished: false,
+          isPublic: false,
+          theme: [
+              "New",
+              "FavoritePlace",
+          ],
+          createdAt: new Date("2025-11-29"),
+          updatedAt: new Date("2025-11-29"),
+          viewCount: 1,
+          favoriteCount: 0,
+          places: []
+      },
+  ]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -53,28 +77,12 @@ export default function LibraryScreen() {
       </View>
 
       {/* Tabs */}
-      <View
-        style={[
-          styles.tabContainer,
-          { borderBottomColor: colors.border },
-        ]}
-      >
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            styles.activeTab,
-            { borderBottomColor: colors.primary },
-          ]}
-        >
-          <Text style={[styles.tabTextActive, { color: colors.text }]}>
-            Abonnements
-          </Text>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity style={[styles.tab, tab === 1 && styles.activeTab]} onPress={() => setTab(1)}>
+            <Text style={tab === 1 ? styles.tabTextActive : styles.tabText}>Abonnements</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab}>
-          <Text style={[styles.tabText, { color: colors.text, opacity: 0.6 }]}>
-            Collaborations
-          </Text>
+        <TouchableOpacity style={[styles.tab, tab === 2 && styles.activeTab]} onPress={() => setTab(2)}>
+            <Text style={tab === 2 ? styles.tabTextActive : styles.tabText}>Mes roadBooks</Text>
         </TouchableOpacity>
       </View>
 
@@ -100,42 +108,47 @@ export default function LibraryScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.emptyState}>
-          <View style={styles.emptyIconContainer}>
-            <FontAwesome name="user" size={40} color={colors.text} />
+          {
+              tab === 1 ?
+                  <View style={styles.emptyState}>
+                      <View style={styles.emptyIconContainer}>
+                          <FontAwesome name="user" size={40} color="black" />
+                          <View style={styles.hashtagBubble}>
+                              <Text style={styles.hashtagText}>#</Text>
+                          </View>
+                      </View>
+                      <Text style={styles.emptyText}>Les cartes que vous suivez seront accessibles d ici</Text>
 
-            <View
-              style={[
-                styles.hashtagBubble,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: colors.text,
-                },
-              ]}
-            >
-              <Text style={[styles.hashtagText, { color: colors.text }]}>#</Text>
-            </View>
-          </View>
+                      <TouchableOpacity style={styles.addFriendButton}>
+                          <FontAwesome name="user-plus" size={16} color="black" style={{marginRight: 10}} />
+                          <Text>Ajouter des amis</Text>
+                      </TouchableOpacity>
+                  </View>
+                  :
+                  <View style={styles.emptyState}>
+                      {
+                          roadBookList.length === 0 ?
+                              <>
+                                  <View style={styles.emptyIconContainer}>
+                                      <FontAwesome name="book" size={40} color="black" />
+                                      <View style={styles.hashtagBubble}>
+                                          <Text style={styles.hashtagText}>#</Text>
+                                      </View>
+                                  </View>
+                                  <Text style={styles.emptyText}>Vos roads books se retrouve ici</Text>
 
-          <Text style={[styles.emptyText, { color: colors.text, opacity: 0.8 }]}>
-            Les cartes que vous suivez seront accessibles d'ici
-          </Text>
-
-          <TouchableOpacity
-            style={[
-              styles.addFriendButton,
-              { backgroundColor: colors.card },
-            ]}
-          >
-            <FontAwesome
-              name="user-plus"
-              size={16}
-              color={colors.text}
-              style={{ marginRight: 10 }}
-            />
-            <Text style={{ color: colors.text }}>Ajouter des amis</Text>
-          </TouchableOpacity>
-        </View>
+                                  <TouchableOpacity style={styles.addFriendButton}>
+                                      <FontAwesome name="book" size={16} color="black" style={{marginRight: 10}} />
+                                      <Text>Crée un road book</Text>
+                                  </TouchableOpacity>
+                              </>
+                              :
+                              <>
+                                  <RoadBookList listRoadBook={roadBookList} />
+                              </>
+                      }
+                  </View>
+          }
       </ScrollView>
     </SafeAreaView>
   );
