@@ -87,7 +87,7 @@ export default function SecurityScreen() {
       setCurrentPwd("");
       setNewPwd("");
       setConfirmPwd("");
-      setShowPasswordForm(false);
+      setShowPasswordModal(false);
 
       Alert.alert("Succès", "Mot de passe mis à jour ");
       setShowPasswordModal(false);

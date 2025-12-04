@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
-import {useTheme} from "@react-navigation/native";
+import { useTheme } from "@react-navigation/native";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -14,8 +14,8 @@ export default function LibraryScreen() {
   const { user } = useAuth();
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
-  const {colors} = useTheme();
-  const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
+  const { colors } = useTheme();
+  const [roadBookList] = useState<RoadBook[]>([
       {
           id: 1,
           userId: 1,
@@ -47,18 +47,18 @@ export default function LibraryScreen() {
   ]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: 'white' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
             <TouchableOpacity onPress={() => router.push('/profile')}>
-                <View style={styles.avatarPlaceholder}>
-                     <FontAwesome name="user" size={24} color="#666" />
+                <View style={[styles.avatarPlaceholder, { backgroundColor: colors.card }]}>
+                     <FontAwesome name="user" size={24} color={colors.text} />
                 </View>
             </TouchableOpacity>
             <View>
-                <Text style={styles.username}>{displayName}</Text>
-                <Text style={styles.address}>{username}</Text>
+                <Text style={[styles.username, { color: colors.text }]}>{displayName}</Text>
+                <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>{username}</Text>
             </View>
         </View>
 
@@ -67,12 +67,12 @@ export default function LibraryScreen() {
             <FontAwesome
               name="question-circle-o"
               size={24}
-              color="black"
+              color={colors.text}
               style={{ marginRight: 15 }}
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            <FontAwesome name="upload" size={24} color="black" />
+            <FontAwesome name="upload" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -80,10 +80,10 @@ export default function LibraryScreen() {
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity style={[styles.tab, tab === 1 && styles.activeTab]} onPress={() => setTab(1)}>
-            <Text style={tab === 1 ? styles.tabTextActive : styles.tabText}>Abonnements</Text>
+            <Text style={tab === 1 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>Abonnements</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.tab, tab === 2 && styles.activeTab]} onPress={() => setTab(2)}>
-            <Text style={tab === 2 ? styles.tabTextActive : styles.tabText}>Mes roadBooks</Text>
+            <Text style={tab === 2 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>Mes roadBooks</Text>
         </TouchableOpacity>
       </View>
 
@@ -91,19 +91,19 @@ export default function LibraryScreen() {
       <View
         style={[
           styles.searchContainer,
-          { backgroundColor: 'lightgray' },
+          { backgroundColor: colors.card },
         ]}
       >
         <FontAwesome
           name="search"
           size={16}
-          color="black"
+          color={colors.text}
           style={[styles.searchIcon, { opacity: 0.5 }]}
         />
         <TextInput
           placeholder="Recherche..."
-          placeholderTextColor={'gray'}
-          style={[styles.searchInput, { color: 'black' }]}
+          placeholderTextColor={colors.text + "80"}
+          style={[styles.searchInput, { color: colors.text }]}
         />
       </View>
 
@@ -113,16 +113,16 @@ export default function LibraryScreen() {
               tab === 1 ?
                   <View style={styles.emptyState}>
                       <View style={styles.emptyIconContainer}>
-                          <FontAwesome name="user" size={40} color="black" />
+                          <FontAwesome name="user" size={40} color={colors.text} />
                           <View style={styles.hashtagBubble}>
-                              <Text style={styles.hashtagText}>#</Text>
+                              <Text style={[styles.hashtagText, { color: colors.text }]} >#</Text>
                           </View>
                       </View>
-                      <Text style={styles.emptyText}>Les cartes que vous suivez seront accessibles d ici</Text>
+                      <Text style={[styles.emptyText, { color: colors.text }]}>Les cartes que vous suivez seront accessibles d&apos;ici</Text>
 
-                      <TouchableOpacity style={styles.addFriendButton}>
-                          <FontAwesome name="user-plus" size={16} color="black" style={{marginRight: 10}} />
-                          <Text>Ajouter des amis</Text>
+                      <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
+                          <FontAwesome name="user-plus" size={16} color={colors.text} style={{marginRight: 10}} />
+                          <Text style={{ color: colors.text }}>Ajouter des amis</Text>
                       </TouchableOpacity>
                   </View>
                   :
@@ -131,16 +131,16 @@ export default function LibraryScreen() {
                           roadBookList.length === 0 ?
                               <>
                                   <View style={styles.emptyIconContainer}>
-                                      <FontAwesome name="book" size={40} color="black" />
+                                      <FontAwesome name="book" size={40} color={colors.text} />
                                       <View style={styles.hashtagBubble}>
-                                          <Text style={styles.hashtagText}>#</Text>
+                                          <Text style={[styles.hashtagText, { color: colors.text }]}>#</Text>
                                       </View>
                                   </View>
-                                  <Text style={styles.emptyText}>Vos roads books se retrouve ici</Text>
+                                  <Text style={[styles.emptyText, { color: colors.text }]}>Vos roads books se retrouve ici</Text>
 
-                                  <TouchableOpacity style={styles.addFriendButton}>
-                                      <FontAwesome name="book" size={16} color="black" style={{marginRight: 10}} />
-                                      <Text>Crée un road book</Text>
+                                  <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
+                                      <FontAwesome name="book" size={16} color={colors.text} style={{marginRight: 10}} />
+                                      <Text style={{ color: colors.text }}>Crée un road book</Text>
                                   </TouchableOpacity>
                               </>
                               :
