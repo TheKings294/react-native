@@ -2,13 +2,17 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import {useState} from "react";
-import {RoadBook} from "@/model/RaodBook"
-import RoadBookList from "@/components/roadbook-list";
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { RoadBook } from '@/model/RaodBook';
+import RoadBookList from '@/components/roadbook-list';
 
 export default function LibraryScreen() {
   const router = useRouter();
   const [tab, setTab] = useState(1);
+  const { user } = useAuth();
+  const username = user?.username ? `@${user.username}` : '@inconnu';
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
   const [roadBookList, setRoadBookList] = useState<RoadBook[]>([
       {
           id: 1,
@@ -45,20 +49,15 @@ export default function LibraryScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <TouchableOpacity onPress={() => router.push("/profile")}>
-            <View style={[styles.avatarPlaceholder, { backgroundColor: colors.card }]}>
-              <FontAwesome name="user" size={24} color={colors.text} />
+            <TouchableOpacity onPress={() => router.push('/profile')}>
+                <View style={styles.avatarPlaceholder}>
+                     <FontAwesome name="user" size={24} color="#666" />
+                </View>
+            </TouchableOpacity>
+            <View>
+                <Text style={styles.username}>{displayName}</Text>
+                <Text style={styles.address}>{username}</Text>
             </View>
-          </TouchableOpacity>
-
-          <View>
-            <Text style={[styles.username, { color: colors.text }]}>
-              @user.username
-            </Text>
-            <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>
-              1 adresse
-            </Text>
-          </View>
         </View>
 
         <View style={styles.headerIcons}>

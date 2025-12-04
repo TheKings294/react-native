@@ -1,23 +1,24 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 import { useTheme } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { user, logout } = useAuth();
+
+  const username = user?.username ? `@${user.username}` : '@inconnu';
+  const displayName = user?.displayName || user?.username || 'Utilisateur';
+  const bioText = user?.bio || "Ajoutez une bio pour en dire plus sur vous";
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={[styles.headerText, { color: colors.text }]}>
-            @Mourad9101 v
-          </Text>
-        </TouchableOpacity>
-
+         <TouchableOpacity onPress={() => router.back()}>
+             <Text style={styles.headerText}>{username}</Text>
+         </TouchableOpacity>
         <View style={styles.headerIcons}>
           <TouchableOpacity>
             <FontAwesome
@@ -62,10 +63,9 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.bioSection}>
-        <Text style={[styles.name, { color: colors.text }]}>Mourad</Text>
-        <Text style={[styles.bioPlaceholder, { color: colors.text, opacity: 0.6 }]}>
-          Ajoutez une bio pour en dire plus sur vous
-        </Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.bioPlaceholder}>{bioText}</Text>
+          {user?.email ? <Text style={styles.email}>{user.email}</Text> : null}
       </View>
 
       <View style={styles.actionButtons}>
@@ -75,12 +75,12 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.card }]}>
-          <Text style={[styles.buttonText, { color: colors.text }]}>
-            Partager ma carte
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.logoutContainer}>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+              <Text style={styles.logoutText}>Se déconnecter</Text>
+          </TouchableOpacity>
       </View>
+
     </SafeAreaView>
   );
 }
@@ -117,20 +117,13 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 12 },
 
   bioSection: { paddingHorizontal: 20, marginBottom: 20 },
-  name: { fontWeight: "bold", fontSize: 18, marginBottom: 5 },
-  bioPlaceholder: {},
-
-  actionButtons: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  button: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: { fontWeight: "500" },
+  name: { fontWeight: 'bold', fontSize: 18, marginBottom: 5 },
+  bioPlaceholder: { color: '#666' },
+  actionButtons: { flexDirection: 'row', paddingHorizontal: 20, gap: 10 },
+  button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
+  buttonText: { fontWeight: '500' },
+  logoutContainer: { paddingHorizontal: 20, marginTop: 30 },
+  logoutButton: { backgroundColor: '#ddd', padding: 12, borderRadius: 8, alignItems: 'center' },
+  logoutText: { fontWeight: '600' },
 });
 

@@ -145,9 +145,7 @@ class RegistrationController extends AbstractController
             if (isset($data['bio'])) {
                 $user->setBio($data['bio']);
             }
-            if (isset($data['isProfilePublic'])) {
-                $user->setIsProfilePublic((bool) $data['isProfilePublic']);
-            }
+            $user->setIsProfilePublic(isset($data['isProfilePublic']) ? (bool) $data['isProfilePublic'] : true);
 
             // Hash password
             $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
