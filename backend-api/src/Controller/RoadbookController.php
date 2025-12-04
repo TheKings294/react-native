@@ -139,15 +139,28 @@ class RoadbookController extends AbstractController
         $roadbook = new Roadbook();
         $roadbook->setTitle($data['title'] ?? '');
         $roadbook->setDescription($data['description'] ?? null);
-        $roadbook->setCreatedAt(new \DateTimeImmutable());
-        $roadbook->setUpdatedAt(new \DateTimeImmutable());
-        $roadbook->setCoverImage($data['coverImage'] ?? "");
-        $roadbook->setstartDate($data['startDate'] ?? new \DateTimeImmutable());
-        $roadbook->setIsPublic($data['isPublic'] ?? false);
-        $roadbook->setTags($data['tags'] ?? []);
-        $roadbook->setIsPublished($data['isPublished'] ?? false);
-        $roadbook->setTemplate($data['template'] ?? 'SIMPLE');
-        $roadbook->setTheme($data['theme'] ?? '');
+        $roadbook->setCoverImage($data['coverImage'] ?? null);
+        if (!empty($data['startDate'])) {
+            $roadbook->setStartDate(new \DateTimeImmutable($data['startDate']));
+        }
+        if (!empty($data['endDate'])) {
+            $roadbook->setEndDate(new \DateTimeImmutable($data['endDate']));
+        }
+        $roadbook->setCountries(isset($data['countries']) && is_array($data['countries']) ? $data['countries'] : null);
+        $roadbook->setTags(isset($data['tags']) && is_array($data['tags']) ? $data['tags'] : null);
+        $roadbook->setIsPublished(isset($data['isPublished']) ? (bool)$data['isPublished'] : false);
+        $roadbook->setIsPublic(isset($data['isPublic']) ? (bool)$data['isPublic'] : false);
+        if (!empty($data['template'])) {
+            $roadbook->setTemplate($data['template']);
+        }
+        if (array_key_exists('theme', $data)) {
+            $roadbook->setTheme($data['theme']);
+        }
+        $now = new \DateTimeImmutable();
+        $roadbook->setCreatedAt($now);
+        $roadbook->setUpdatedAt($now);
+        $roadbook->setViewCount(0);
+        $roadbook->setFavoriteCount(0);
         $roadbook->setUserId($user->getId());
 
         // Add places if provided

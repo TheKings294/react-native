@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,19 +9,16 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import {
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
-} from "expo-router";
+import { router } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
+import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
-type ItemProps = {
-  label: string;
+type ItemProps = {label: string;
   description?: string;
   onPress?: () => void;
   right?: React.ReactNode;
@@ -101,7 +98,8 @@ const Section = ({
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
-  const params = useLocalSearchParams(); // ✅ récupère ?lang=en etc.
+  const { logout } = useAuth();
+  const { lang, t } = useLanguage();
 
   // Dark mode global
   const { mode, setMode } = useThemeMode();
@@ -109,9 +107,6 @@ export default function SettingsScreen() {
 
   // Notifications mock + persistance
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-
-  // Langue affichée
-  const [languageLabel, setLanguageLabel] = useState("Français");
 
   // ✅ Charge notifications au montage
   useEffect(() => {
@@ -123,33 +118,10 @@ export default function SettingsScreen() {
     })();
   }, []);
 
-  // ✅ Fonction solide pour charger la langue
-  const loadLanguage = useCallback(async () => {
-    const savedLang = await AsyncStorage.getItem("appLanguage");
-    if (savedLang === "en") setLanguageLabel("English");
-    else if (savedLang === "ar") setLanguageLabel("العربية");
-    else setLanguageLabel("Français");
-  }, []);
-
-  // ✅ Charge langue au montage
-  useEffect(() => {
-    loadLanguage();
-  }, [loadLanguage]);
-
-  // ✅ Recharge langue quand tu reviens sur Settings
-  useFocusEffect(
-    useCallback(() => {
-      loadLanguage();
-    }, [loadLanguage])
-  );
-
-  // ✅ Refresh forcé si LanguageScreen renvoie un param
-  useEffect(() => {
-    const lang = params?.lang;
-    if (lang === "en") setLanguageLabel("English");
-    else if (lang === "ar") setLanguageLabel("العربية");
-    else if (lang === "fr") setLanguageLabel("Français");
-  }, [params?.lang]);
+  const languageLabel = useMemo(() => {
+    if (lang === "en") return "English";
+    return "Français";
+  }, [lang]);
 
   const toggleNotifications = async (value: boolean) => {
     const isExpoGo = Constants.appOwnership === "expo";
@@ -170,16 +142,17 @@ export default function SettingsScreen() {
   }, []);
 
   const comingSoon = (title: string) =>
-    Alert.alert(title, "Cette fonctionnalité arrive bientôt 😉");
+    Alert.alert(title, t("common.comingSoon"));
 
   const confirmLogout = () => {
-    Alert.alert("Déconnexion", "Tu es sûr de vouloir te déconnecter ?", [
-      { text: "Annuler", style: "cancel" },
+    Alert.alert(t("settings.logout"), t("settings.logoutConfirm") || t("settings.logout"), [
+      { text: t("common.cancel") || "Cancel", style: "cancel" },
       {
-        text: "Se déconnecter",
+        text: t("settings.logout"),
         style: "destructive",
-        onPress: () => {
-          router.replace("/");
+        onPress: async () => {
+          await logout();
+          router.replace("/(auth)/login");
         },
       },
     ]);
@@ -190,12 +163,12 @@ export default function SettingsScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
     >
-      <Text style={[styles.title, { color: colors.text }]}>Paramètres</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{t("settings.title")}</Text>
 
-      <Section title="Préférences">
+      <Section title={t("settings.preferences")}>
         <Item
-          label="Mode sombre"
-          description="Réduit la luminosité de l’interface"
+          label={t("settings.darkMode")}
+          description={t("settings.darkModeDesc") || ""}
           right={
             <Switch
               value={darkMode}
@@ -205,8 +178,8 @@ export default function SettingsScreen() {
         />
 
         <Item
-          label="Notifications"
-          description="Activer ou désactiver les alertes"
+          label={t("settings.notifications")}
+          description={t("settings.notificationsDesc") || ""}
           right={
             <Switch
               value={notificationsEnabled}
@@ -216,38 +189,38 @@ export default function SettingsScreen() {
         />
 
         <Item
-          label="Langue"
+          label={t("settings.language")}
           description={languageLabel}
           onPress={() => router.push("/language")}
         />
       </Section>
 
-      <Section title="Compte">
+      <Section title={t("settings.account")}>
         <Item
-          label="Mon profil"
-          description="Infos personnelles"
+          label={t("settings.myProfile")}
+          description={t("settings.profileInfo") || ""}
           onPress={() => router.push("/edit-profile")}
         />
 
         <Item
-          label="Sécurité"
-          description="Mot de passe, confidentialité"
+          label={t("settings.security")}
+          description={t("settings.securityDesc") || ""}
           onPress={() => router.push("/security")}
         />
 
       </Section>
 
-      <Section title="Support">
-        <Item label="Aide & FAQ" onPress={() => comingSoon("Aide & FAQ")} />
+      <Section title={t("settings.support") || "Support"}>
+        <Item label={t("settings.help") || "Help & FAQ"} onPress={() => comingSoon(t("settings.help") || "Help & FAQ")} />
         <Item
-          label="À propos"
-          description={`Version app • ${versionText}`}
-          onPress={() => comingSoon("À propos")}
+          label={t("settings.about") || "About"}
+          description={`${t("settings.about") || "About"} • ${versionText}`}
+          onPress={() => comingSoon(t("settings.about") || "About")}
         />
       </Section>
 
-      <Section title="Actions">
-        <Item label="Se déconnecter" danger onPress={confirmLogout} />
+      <Section title={t("settings.actions") || "Actions"}>
+        <Item label={t("settings.logout")} danger onPress={confirmLogout} />
       </Section>
     </ScrollView>
   );

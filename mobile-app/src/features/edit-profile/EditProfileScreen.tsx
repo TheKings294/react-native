@@ -1,80 +1,127 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,Alert,} from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import { updateUserProfile } from "@/lib/api";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type UserProfile = {
-  name: string;
+  displayName: string;
   username: string;
   bio: string;
   email: string;
-  phone: string;
 };
 
-const STORAGE_KEY = "userProfile";
-
 const DEFAULT_PROFILE: UserProfile = {
-  name: "",
+  displayName: "",
   username: "",
   bio: "",
   email: "",
-  phone: "",
 };
 
 export default function EditProfileScreen() {
   const { colors } = useTheme();
   const router = useRouter();
+  const { user, token, setAuthData } = useAuth();
+  const { t } = useLanguage();
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const trimmedDisplayName = profile.displayName.trim() || null;
+  const trimmedUsername = profile.username.trim();
+  const trimmedBio = profile.bio.trim() || null;
+
+  const hasChanges = useMemo(() => {
+    if (!user) return false;
+    const userDisplayName = user.displayName || null;
+    const userBio = user.bio || null;
+    return (
+      trimmedUsername !== (user.username || "") ||
+      trimmedDisplayName !== userDisplayName ||
+      trimmedBio !== userBio
+    );
+  }, [trimmedUsername, trimmedDisplayName, trimmedBio, user]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          setProfile(JSON.parse(saved));
-        }
-      } catch (e) {
-        console.log("Erreur chargement profil", e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    if (user) {
+      setProfile({
+        displayName: user.displayName || "",
+        username: user.username || "",
+        bio: user.bio || "",
+        email: user.email || "",
+      });
+    }
+    setLoading(false);
+  }, [user]);
 
   const updateField = (key: keyof UserProfile, value: string) => {
     setProfile((prev) => ({ ...prev, [key]: value }));
   };
 
   const isValid = useMemo(() => {
-    if (!profile.name.trim()) return false;
     if (!profile.username.trim()) return false;
     return true;
   }, [profile]);
 
   const saveProfile = async () => {
     if (!isValid) {
-      Alert.alert("Erreur", "Nom et username sont obligatoires.");
+      Alert.alert("Erreur", t("profile.usernameRequired") || "Username is required.");
+      return;
+    }
+    if (!token || !user) {
+      Alert.alert("Erreur", t("common.errorAuth") || "Utilisateur non authentifié.");
+      return;
+    }
+    if (!hasChanges) {
+      Alert.alert("Info", t("profile.noChanges") || "No changes to save.");
       return;
     }
 
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      Alert.alert("Succès", "Profil mis à jour avec succès");
+      setIsSaving(true);
+      await updateUserProfile({
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
+      });
+
+      const nextUser = {
+        ...user,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
+      };
+      await setAuthData(token, nextUser);
+
+      Alert.alert("Succès", t("profile.saveSuccess") || "Profile updated successfully");
 
       router.back();
     } catch (e) {
-      Alert.alert("Erreur", "Impossible de sauvegarder.");
+      const message =
+        e instanceof Error ? e.message : t("profile.saveError") || "Impossible de sauvegarder.";
+      Alert.alert("Erreur", message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Chargement...</Text>
+        <Text style={{ color: colors.text }}>{t("common.loading")}</Text>
       </SafeAreaView>
     );
   }
@@ -83,27 +130,25 @@ export default function EditProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>
-          Infos personnelles
+          {t("profile.editInfoTitle") || t("profile.editProfile")}
         </Text>
 
-        {/* Avatar placeholder */}
+        {/* Avatar */}
         <View style={[styles.avatarBox, { backgroundColor: colors.card }]}>
           <Text style={{ color: colors.text, fontSize: 40 }}>👤</Text>
-          <TouchableOpacity
-            onPress={() => Alert.alert("Photo", "On fera ça plus tard 😉")}
-          >
+          <TouchableOpacity onPress={() => Alert.alert("Info", t("profile.photoSoon"))}>
             <Text style={[styles.changePhoto, { color: colors.primary }]}>
-              Changer la photo
+              {t("profile.changePhoto")}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Champs */}
         <View style={styles.form}>
-          <Label text="Nom complet" color={colors.text} />
+          <Label text={t("profile.fullNameLabel")} color={colors.text} />
           <TextInput
-            value={profile.name}
-            onChangeText={(v) => updateField("name", v)}
+            value={profile.displayName}
+            onChangeText={(v) => updateField("displayName", v)}
             placeholder="Ex: John Doe"
             placeholderTextColor={colors.text + "88"}
             style={[
@@ -112,7 +157,7 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Username" color={colors.text} />
+          <Label text={t("profile.usernameLabel")} color={colors.text} />
           <TextInput
             value={profile.username}
             onChangeText={(v) => updateField("username", v)}
@@ -124,11 +169,11 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Bio" color={colors.text} />
+          <Label text={t("profile.bioLabel")} color={colors.text} />
           <TextInput
             value={profile.bio}
             onChangeText={(v) => updateField("bio", v)}
-            placeholder="Ajoute une bio..."
+            placeholder={t("profile.bioPlaceholder") || "Ajoute une bio..."}
             placeholderTextColor={colors.text + "88"}
             multiline
             style={[
@@ -138,30 +183,17 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Email" color={colors.text} />
+          <Label text={t("profile.emailLabel")} color={colors.text} />
           <TextInput
             value={profile.email}
-            onChangeText={(v) => updateField("email", v)}
+            editable={false}
             placeholder="exemple@gmail.com"
             placeholderTextColor={colors.text + "88"}
             keyboardType="email-address"
             autoCapitalize="none"
             style={[
               styles.input,
-              { backgroundColor: colors.card, color: colors.text, borderColor: colors.border },
-            ]}
-          />
-
-          <Label text="Téléphone" color={colors.text} />
-          <TextInput
-            value={profile.phone}
-            onChangeText={(v) => updateField("phone", v)}
-            placeholder="+33"
-            placeholderTextColor={colors.text + "88"}
-            keyboardType="phone-pad"
-            style={[
-              styles.input,
-              { backgroundColor: colors.card, color: colors.text, borderColor: colors.border },
+              { backgroundColor: colors.card, color: colors.text, borderColor: colors.border, opacity: 0.6 },
             ]}
           />
         </View>
@@ -171,11 +203,15 @@ export default function EditProfileScreen() {
           onPress={saveProfile}
           style={[
             styles.saveButton,
-            { backgroundColor: isValid ? colors.primary : colors.border },
+            { backgroundColor: isValid && hasChanges ? colors.primary : colors.border },
           ]}
-          disabled={!isValid}
+          disabled={!isValid || isSaving || !hasChanges}
         >
-          <Text style={styles.saveText}>Enregistrer</Text>
+          {isSaving ? (
+            <ActivityIndicator color="black" />
+          ) : (
+            <Text style={styles.saveText}>{t("profile.save")}</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

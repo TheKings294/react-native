@@ -4,15 +4,17 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from "@react-navigation/native";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
-  const username = user?.username ? `@${user.username}` : '@inconnu';
-  const displayName = user?.displayName || user?.username || 'Utilisateur';
-  const bioText = user?.bio || "Ajoutez une bio pour en dire plus sur vous";
+  const username = user?.username ? `@${user.username}` : t("profile.unknownHandle") || '@inconnu';
+  const displayName = user?.displayName || user?.username || t("profile.userFallback") || 'User';
+  const bioText = user?.bio || t("profile.addBio");
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -45,19 +47,19 @@ export default function ProfileScreen() {
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Lieux
+              {t("profile.places")}
             </Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Abonnements
+              {t("profile.following")}
             </Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Abonnés
+              {t("profile.followers")}
             </Text>
           </View>
         </View>
@@ -70,18 +72,19 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.card }]}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.card }]}
+          onPress={() => router.push("/edit-profile")}
+        >
           <Text style={[styles.buttonText, { color: colors.text }]}>
-            Modifier mon profil
+            {t("profile.editProfile")}
           </Text>
         </TouchableOpacity>
       </View>
 
-          <View style={styles.logoutContainer}>
-              <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-                  <Text style={styles.logoutText}>Se déconnecter</Text>
-              </TouchableOpacity>
-          </View>
+      <View style={styles.logoutContainer}>
+      </View>
+
     </SafeAreaView>
   );
 }
@@ -125,6 +128,4 @@ const styles = StyleSheet.create({
   button: { flex: 1, backgroundColor: '#eee', padding: 10, borderRadius: 5, alignItems: 'center' },
   buttonText: { fontWeight: '500' },
   logoutContainer: { paddingHorizontal: 20, marginTop: 30 },
-  logoutButton: { backgroundColor: '#ddd', padding: 12, borderRadius: 8, alignItems: 'center' },
-  logoutText: { fontWeight: '600' },
 });

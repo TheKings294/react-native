@@ -2,12 +2,13 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoadBook } from '@/model/RaodBook';
 import RoadBookList from '@/components/roadbook-list';
-import {useTheme} from "@react-navigation/native";
-import {getRoadBook} from "@/lib/api";
+import { useTheme } from "@react-navigation/native";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { getRoadbooks, RoadbookResponse } from "@/lib/api";
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -15,35 +16,71 @@ export default function LibraryScreen() {
   const { user } = useAuth();
   const username = user?.username ? `@${user.username}` : '@inconnu';
   const displayName = user?.displayName || user?.username || 'Utilisateur';
-  const {colors} = useTheme();
+  const { colors } = useTheme();
+  const { t } = useLanguage();
   const [roadBookList, setRoadBookList] = useState<RoadBook[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const data = await getRoadBook();
-                setRoadBookList(data);
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        load();
-    }, []);
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getRoadbooks();
+        if (!mounted) return;
+        const mapped = data.map(mapRoadbookResponse);
+        setRoadBookList(mapped);
+      } catch (e) {
+        if (!mounted) return;
+        const msg = e instanceof Error ? e.message : t("common.errorAuth");
+        setError(msg || null);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [t]);
 
+  const mapRoadbookResponse = (rb: RoadbookResponse): RoadBook => ({
+    id: rb.id,
+    userId: rb.userId,
+    title: rb.title,
+    description: rb.description || '',
+    coverImage: rb.coverImage || null,
+    coverImageURL: rb.coverImage || null,
+    startDate: rb.startDate ? new Date(rb.startDate) : null,
+    endDate: rb.endDate ? new Date(rb.endDate) : null,
+    countries: rb.countries || [],
+    tags: rb.tags || [],
+    isPublished: Boolean(rb.isPublished),
+    isPublic: rb.isPublic ?? true,
+    template: rb.template || undefined,
+    theme: rb.theme || undefined,
+    createdAt: rb.createdAt ? new Date(rb.createdAt) : null,
+    updatedAt: rb.updatedAt ? new Date(rb.updatedAt) : null,
+    viewCount: rb.viewCount ?? 0,
+    favoriteCount: rb.favoriteCount ?? 0,
+    places: [],
+  });
 
-    return (
-    <SafeAreaView style={[styles.container, { backgroundColor: 'white' }]}>
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
             <TouchableOpacity onPress={() => router.push('/profile')}>
-                <View style={styles.avatarPlaceholder}>
-                     <FontAwesome name="user" size={24} color="#666" />
+                <View style={[styles.avatarPlaceholder, { backgroundColor: colors.card }]}>
+                     <FontAwesome name="user" size={24} color={colors.text} />
                 </View>
             </TouchableOpacity>
             <View>
-                <Text style={styles.username}>{displayName}</Text>
-                <Text style={styles.address}>{username}</Text>
+                <Text style={[styles.username, { color: colors.text }]}>{displayName}</Text>
+                <Text style={[styles.address, { color: colors.text, opacity: 0.6 }]}>{username}</Text>
             </View>
         </View>
 
@@ -52,12 +89,12 @@ export default function LibraryScreen() {
             <FontAwesome
               name="question-circle-o"
               size={24}
-              color="black"
+              color={colors.text}
               style={{ marginRight: 15 }}
             />
           </TouchableOpacity>
           <TouchableOpacity>
-            <FontAwesome name="upload" size={24} color="black" />
+            <FontAwesome name="upload" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -65,10 +102,10 @@ export default function LibraryScreen() {
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity style={[styles.tab, tab === 1 && styles.activeTab]} onPress={() => setTab(1)}>
-            <Text style={tab === 1 ? styles.tabTextActive : styles.tabText}>Abonnements</Text>
+            <Text style={tab === 1 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>{t("library.titleTab1")}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.tab, tab === 2 && styles.activeTab]} onPress={() => setTab(2)}>
-            <Text style={tab === 2 ? styles.tabTextActive : styles.tabText}>Mes roadBooks</Text>
+            <Text style={tab === 2 ? [styles.tabTextActive, { color: colors.text }] : [styles.tabText, { color: colors.text, opacity: 0.6 }]}>{t("library.titleTab2")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -76,65 +113,46 @@ export default function LibraryScreen() {
       <View
         style={[
           styles.searchContainer,
-          { backgroundColor: 'lightgray' },
+          { backgroundColor: colors.card },
         ]}
       >
         <FontAwesome
           name="search"
           size={16}
-          color="black"
+          color={colors.text}
           style={[styles.searchIcon, { opacity: 0.5 }]}
         />
         <TextInput
           placeholder="Recherche..."
-          placeholderTextColor={'gray'}
-          style={[styles.searchInput, { color: 'black' }]}
+          placeholderTextColor={colors.text + "80"}
+          style={[styles.searchInput, { color: colors.text }]}
         />
       </View>
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
-          {
-              tab === 1 ?
-                  <View style={styles.emptyState}>
-                      <View style={styles.emptyIconContainer}>
-                          <FontAwesome name="user" size={40} color="black" />
-                          <View style={styles.hashtagBubble}>
-                              <Text style={styles.hashtagText}>#</Text>
-                          </View>
-                      </View>
-                      <Text style={styles.emptyText}>Les cartes que vous suivez seront accessibles d ici</Text>
-
-                      <TouchableOpacity style={styles.addFriendButton}>
-                          <FontAwesome name="user-plus" size={16} color="black" style={{marginRight: 10}} />
-                          <Text>Ajouter des amis</Text>
-                      </TouchableOpacity>
-                  </View>
-                  :
-                  <View style={styles.emptyState}>
-                      {
-                          roadBookList.length === 0 ?
-                              <>
-                                  <View style={styles.emptyIconContainer}>
-                                      <FontAwesome name="book" size={40} color="black" />
-                                      <View style={styles.hashtagBubble}>
-                                          <Text style={styles.hashtagText}>#</Text>
-                                      </View>
-                                  </View>
-                                  <Text style={styles.emptyText}>Vos roads books se retrouve ici</Text>
-
-                                  <TouchableOpacity style={styles.addFriendButton}>
-                                      <FontAwesome name="book" size={16} color="black" style={{marginRight: 10}} />
-                                      <Text>Crée un road book</Text>
-                                  </TouchableOpacity>
-                              </>
-                              :
-                              <>
-                                  <RoadBookList listRoadBook={roadBookList} />
-                              </>
-                      }
-                  </View>
-          }
+          {isLoading ? (
+            <Text style={{ color: colors.text }}>{t("common.loading")}</Text>
+          ) : error ? (
+            <Text style={{ color: colors.text }}>{error}</Text>
+          ) : null}
+          {roadBookList.length === 0 ? (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconContainer}>
+                <FontAwesome name={tab === 1 ? "user" : "book"} size={40} color={colors.text} />
+                <View style={styles.hashtagBubble}>
+                  <Text style={[styles.hashtagText, { color: colors.text }]} >#</Text>
+                </View>
+              </View>
+              <Text style={[styles.emptyText, { color: colors.text }]}>{t("library.emptyText")}</Text>
+              <TouchableOpacity style={[styles.addFriendButton, { backgroundColor: colors.card }]}>
+                <FontAwesome name="book" size={16} color={colors.text} style={{marginRight: 10}} />
+                <Text style={{ color: colors.text }}>{t("add.createRoadbook")}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <RoadBookList listRoadBook={roadBookList} />
+          )}
       </ScrollView>
     </SafeAreaView>
   );

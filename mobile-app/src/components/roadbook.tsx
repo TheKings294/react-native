@@ -27,12 +27,14 @@ export function RoadBookCard({ roadBook }: RoadBookCardProps) {
             <Text style={styles.description}>{roadBook.description}</Text>
 
             {/* Dates */}
-            <View style={styles.section}>
-                <Text style={styles.label}>Dates</Text>
-                <Text style={styles.value}>
-                    {formatDate(roadBook.startDate)} → {formatDate(roadBook.endDate)}
-                </Text>
-            </View>
+            {roadBook.startDate && roadBook.endDate ? (
+                <View style={styles.section}>
+                    <Text style={styles.label}>Dates</Text>
+                    <Text style={styles.value}>
+                        {formatDate(roadBook.startDate)} → {formatDate(roadBook.endDate)}
+                    </Text>
+                </View>
+            ) : null}
 
             {/* Countries */}
             <View style={styles.section}>
@@ -49,7 +51,11 @@ export function RoadBookCard({ roadBook }: RoadBookCardProps) {
             {/* Themes */}
             <View style={styles.section}>
                 <Text style={styles.label}>Themes</Text>
-                <Text style={styles.value}>{roadBook.theme.join(", ")}</Text>
+                <Text style={styles.value}>
+                    {Array.isArray(roadBook.theme)
+                        ? roadBook.theme.join(", ")
+                        : roadBook.theme || ""}
+                </Text>
             </View>
 
             {/* Stats */}

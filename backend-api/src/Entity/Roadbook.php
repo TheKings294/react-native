@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RoadbookRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RoadbookRepository::class)]
 class Roadbook
@@ -12,59 +13,77 @@ class Roadbook
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?int $id = null;
 
     #[ORM\Column]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'roadbooks')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?int $userId = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?string $coverImage = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTime $startDate = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
+    private ?\DateTimeImmutable $startDate = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTime $endDate = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
+    private ?\DateTimeImmutable $endDate = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?array $countries = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?array $tags = null;
 
     #[ORM\Column(options: ["default" => false])]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?bool $isPublished = null;
 
     #[ORM\Column(options: ["default" => false])]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?bool $isPublic = null;
 
     #[ORM\Column(type: 'BookTemplate', length: 255, options: ["default" => 'SIMPLE'])]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?string $template = null;
 
     #[ORM\Column(length: 255, nullable: true, options: ["default" => 'default'])]
+    #[Groups(['roadbook:list', 'roadbook:read', 'roadbook:create'])]
     private ?string $theme = null;
 
     #[ORM\Column(options: ["default" => 'CURRENT_TIMESTAMP'])]
+    #[Groups(['roadbook:list', 'roadbook:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['roadbook:list', 'roadbook:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['roadbook:read'])]
     private ?\DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column(options: ["default" => 0])]
+    #[Groups(['roadbook:list', 'roadbook:read'])]
     private ?int $viewCount = null;
 
     #[ORM\Column(options: ["default" => 0])]
+    #[Groups(['roadbook:list', 'roadbook:read'])]
     private ?int $favoriteCount = null;
 
     #[ORM\OneToMany(targetEntity: RoadbookStop::class, mappedBy: 'roadbookPlace')]
@@ -123,48 +142,48 @@ class Roadbook
         return $this;
     }
 
-    public function getStartDate(): ?\DateTime
+    public function getStartDate(): ?\DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(?\DateTime $startDate): static
+    public function setStartDate(?\DateTimeImmutable $startDate): static
     {
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTime
+    public function getEndDate(): ?\DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTime $endDate): static
+    public function setEndDate(?\DateTimeImmutable $endDate): static
     {
         $this->endDate = $endDate;
 
         return $this;
     }
 
-    public function getCountries(): ?string
+    public function getCountries(): ?array
     {
         return $this->countries;
     }
 
-    public function setCountries(?string $countries): static
+    public function setCountries(?array $countries): static
     {
         $this->countries = $countries;
 
         return $this;
     }
 
-    public function getTags(): ?string
+    public function getTags(): ?array
     {
         return $this->tags;
     }
 
-    public function setTags(?string $tags): static
+    public function setTags(?array $tags): static
     {
         $this->tags = $tags;
 
