@@ -4,15 +4,17 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from "@react-navigation/native";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
-  const username = user?.username ? `@${user.username}` : '@inconnu';
-  const displayName = user?.displayName || user?.username || 'Utilisateur';
-  const bioText = user?.bio || "Ajoutez une bio pour en dire plus sur vous";
+  const username = user?.username ? `@${user.username}` : t("profile.unknownHandle") || '@inconnu';
+  const displayName = user?.displayName || user?.username || t("profile.userFallback") || 'User';
+  const bioText = user?.bio || t("profile.addBio");
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -45,19 +47,19 @@ export default function ProfileScreen() {
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Lieux
+              {t("profile.places")}
             </Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Abonnements
+              {t("profile.following")}
             </Text>
           </View>
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>0</Text>
             <Text style={[styles.statLabel, { color: colors.text, opacity: 0.6 }]}>
-              Abonnés
+              {t("profile.followers")}
             </Text>
           </View>
         </View>
@@ -75,7 +77,7 @@ export default function ProfileScreen() {
           onPress={() => router.push("/edit-profile")}
         >
           <Text style={[styles.buttonText, { color: colors.text }]}>
-            Modifier mon profil
+            {t("profile.editProfile")}
           </Text>
         </TouchableOpacity>
       </View>

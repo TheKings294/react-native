@@ -14,6 +14,7 @@ import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { updateUserProfile } from "@/lib/api";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type UserProfile = {
   displayName: string;
@@ -33,10 +34,26 @@ export default function EditProfileScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { user, token, setAuthData } = useAuth();
+  const { t } = useLanguage();
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  const trimmedDisplayName = profile.displayName.trim() || null;
+  const trimmedUsername = profile.username.trim();
+  const trimmedBio = profile.bio.trim() || null;
+
+  const hasChanges = useMemo(() => {
+    if (!user) return false;
+    const userDisplayName = user.displayName || null;
+    const userBio = user.bio || null;
+    return (
+      trimmedUsername !== (user.username || "") ||
+      trimmedDisplayName !== userDisplayName ||
+      trimmedBio !== userBio
+    );
+  }, [trimmedUsername, trimmedDisplayName, trimmedBio, user]);
 
   useEffect(() => {
     if (user) {
@@ -61,36 +78,40 @@ export default function EditProfileScreen() {
 
   const saveProfile = async () => {
     if (!isValid) {
-      Alert.alert("Erreur", "Le nom d'utilisateur est obligatoire.");
+      Alert.alert("Erreur", t("profile.usernameRequired") || "Username is required.");
       return;
     }
     if (!token || !user) {
-      Alert.alert("Erreur", "Utilisateur non authentifié.");
+      Alert.alert("Erreur", t("common.errorAuth") || "Utilisateur non authentifié.");
+      return;
+    }
+    if (!hasChanges) {
+      Alert.alert("Info", t("profile.noChanges") || "No changes to save.");
       return;
     }
 
     try {
       setIsSaving(true);
       await updateUserProfile({
-        username: profile.username.trim(),
-        displayName: profile.displayName.trim() || null,
-        bio: profile.bio.trim() || null,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
       });
 
       const nextUser = {
         ...user,
-        username: profile.username.trim(),
-        displayName: profile.displayName.trim() || null,
-        bio: profile.bio.trim() || null,
+        username: trimmedUsername,
+        displayName: trimmedDisplayName,
+        bio: trimmedBio,
       };
       await setAuthData(token, nextUser);
 
-      Alert.alert("Succès", "Profil mis à jour avec succès");
+      Alert.alert("Succès", t("profile.saveSuccess") || "Profile updated successfully");
 
       router.back();
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Impossible de sauvegarder.";
+        e instanceof Error ? e.message : t("profile.saveError") || "Impossible de sauvegarder.";
       Alert.alert("Erreur", message);
     } finally {
       setIsSaving(false);
@@ -100,7 +121,7 @@ export default function EditProfileScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Chargement...</Text>
+        <Text style={{ color: colors.text }}>{t("common.loading")}</Text>
       </SafeAreaView>
     );
   }
@@ -109,22 +130,22 @@ export default function EditProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>
-          Infos personnelles
+          {t("profile.editInfoTitle") || t("profile.editProfile")}
         </Text>
 
         {/* Avatar */}
         <View style={[styles.avatarBox, { backgroundColor: colors.card }]}>
           <Text style={{ color: colors.text, fontSize: 40 }}>👤</Text>
-          <TouchableOpacity onPress={() => Alert.alert("Info", "Cette fonction sera ajoutée plus tard.")}>
+          <TouchableOpacity onPress={() => Alert.alert("Info", t("profile.photoSoon"))}>
             <Text style={[styles.changePhoto, { color: colors.primary }]}>
-              Changer la photo
+              {t("profile.changePhoto")}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Champs */}
         <View style={styles.form}>
-          <Label text="Nom complet" color={colors.text} />
+          <Label text={t("profile.fullNameLabel")} color={colors.text} />
           <TextInput
             value={profile.displayName}
             onChangeText={(v) => updateField("displayName", v)}
@@ -136,7 +157,7 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Username" color={colors.text} />
+          <Label text={t("profile.usernameLabel")} color={colors.text} />
           <TextInput
             value={profile.username}
             onChangeText={(v) => updateField("username", v)}
@@ -148,11 +169,11 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Bio" color={colors.text} />
+          <Label text={t("profile.bioLabel")} color={colors.text} />
           <TextInput
             value={profile.bio}
             onChangeText={(v) => updateField("bio", v)}
-            placeholder="Ajoute une bio..."
+            placeholder={t("profile.bioPlaceholder") || "Ajoute une bio..."}
             placeholderTextColor={colors.text + "88"}
             multiline
             style={[
@@ -162,7 +183,7 @@ export default function EditProfileScreen() {
             ]}
           />
 
-          <Label text="Email" color={colors.text} />
+          <Label text={t("profile.emailLabel")} color={colors.text} />
           <TextInput
             value={profile.email}
             editable={false}
@@ -182,14 +203,14 @@ export default function EditProfileScreen() {
           onPress={saveProfile}
           style={[
             styles.saveButton,
-            { backgroundColor: isValid ? colors.primary : colors.border },
+            { backgroundColor: isValid && hasChanges ? colors.primary : colors.border },
           ]}
-          disabled={!isValid || isSaving}
+          disabled={!isValid || isSaving || !hasChanges}
         >
           {isSaving ? (
             <ActivityIndicator color="black" />
           ) : (
-            <Text style={styles.saveText}>Enregistrer</Text>
+            <Text style={styles.saveText}>{t("profile.save")}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

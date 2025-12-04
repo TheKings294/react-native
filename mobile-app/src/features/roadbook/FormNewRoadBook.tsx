@@ -3,11 +3,16 @@ import {View,
     TextInput,
     Pressable,
     ScrollView,
-    StyleSheet,} from "react-native";
+    StyleSheet, Alert, ActivityIndicator} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {useState} from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { createRoadbook } from "@/lib/api";
+import { useRouter } from "expo-router";
 
 function FormNewRoadBook() {
+    const { t } = useLanguage();
+    const router = useRouter();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [coverImage, setCoverImage] = useState("");
@@ -30,50 +35,81 @@ function FormNewRoadBook() {
 
     const [template, setTemplate] = useState("SIMPLE");
     const [theme, setTheme] = useState("default");
+    const [isSaving, setIsSaving] = useState(false);
+
+    const clamp = (value: string, max: number) =>
+        value.length > max ? value.slice(0, max) : value;
 
     const onSubmit = () => {
-        const data = {
-            title,
-            description,
-            coverImage,
-            startDate,
-            endDate,
-            countries,
-            tags,
+        const trimmedTitle = clamp(title.trim(), 255);
+        const trimmedDescription = description.trim()
+            ? clamp(description.trim(), 255)
+            : undefined;
+        const trimmedCover = coverImage.trim()
+            ? clamp(coverImage.trim(), 255)
+            : undefined;
+        const trimmedTemplate = clamp(template.trim(), 255) || "SIMPLE";
+        const trimmedTheme = clamp(theme.trim(), 255) || "default";
+        const startDateStr = startDate ? startDate.toISOString().split("T")[0] : null;
+        const endDateStr = endDate ? endDate.toISOString().split("T")[0] : null;
+
+        if (!trimmedTitle) {
+            Alert.alert("Erreur", t("add.titleRequired") || "Title is required.");
+            return;
+        }
+
+        setIsSaving(true);
+        createRoadbook({
+            title: trimmedTitle,
+            description: trimmedDescription,
+            coverImage: trimmedCover,
+            startDate: startDateStr,
+            endDate: endDateStr,
+            countries: countries.length ? countries : undefined,
+            tags: tags.length ? tags : undefined,
             isPublished,
             isPublic,
-            template,
-            theme,
-        };
-
-        console.log("Roadbook created:", data);
+            template: trimmedTemplate,
+            theme: trimmedTheme,
+            places: [],
+        })
+            .then(() => {
+                Alert.alert("Succès", t("add.createSuccess"));
+                router.back();
+            })
+            .catch((e) => {
+                const message =
+                    e instanceof Error ? e.message : t("add.createError");
+                Alert.alert("Erreur", message);
+            })
+            .finally(() => setIsSaving(false));
     };
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text style={styles.title}>Create Roadbook</Text>
+            <Text style={styles.title}>{t("add.formTitle")}</Text>
 
             {/* Title */}
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>{t("add.titleLabel")}</Text>
             <TextInput
                 style={styles.input}
                 value={title}
                 onChangeText={setTitle}
-                placeholder="Roadtrip in Italy..."
+                placeholder={t("add.titlePlaceholder")}
             />
 
             {/* Description */}
-            <Text style={styles.label}>Description</Text>
+            <Text style={styles.label}>{t("add.descriptionLabel")}</Text>
             <TextInput
                 style={[styles.input, styles.bioInput]}
                 value={description}
                 onChangeText={setDescription}
-                placeholder="Short description..."
+                placeholder={t("add.descriptionPlaceholder")}
                 multiline
             />
 
             {/* Cover Image */}
-            <Text style={styles.label}>Cover Image URL</Text>
+            <Text style={styles.label}>{t("add.coverLabel")}</Text>
             <TextInput
                 style={styles.input}
                 value={coverImage}
@@ -82,19 +118,19 @@ function FormNewRoadBook() {
             />
 
             {/* Dates */}
-            <Text style={styles.label}>Start Date</Text>
+            <Text style={styles.label}>{t("add.startDateLabel")}</Text>
             <Pressable
                 onPress={() => setShowDatePicker("start")}
                 style={styles.input}
             >
                 <Text>
-                    {startDate ? startDate.toDateString() : "Pick a start date"}
+                    {startDate ? startDate.toDateString() : t("add.pickStart")}
                 </Text>
             </Pressable>
 
-            <Text style={styles.label}>End Date</Text>
+            <Text style={styles.label}>{t("add.endDateLabel")}</Text>
             <Pressable onPress={() => setShowDatePicker("end")} style={styles.input}>
-                <Text>{endDate ? endDate.toDateString() : "Pick an end date"}</Text>
+                <Text>{endDate ? endDate.toDateString() : t("add.pickEnd")}</Text>
             </Pressable>
 
             {showDatePicker && (
@@ -111,7 +147,7 @@ function FormNewRoadBook() {
             )}
 
             {/* Countries */}
-            <Text style={styles.label}>Countries</Text>
+            <Text style={styles.label}>{t("add.countriesLabel")}</Text>
             <View style={{ flexDirection: "row", gap: 8 }}>
                 <TextInput
                     style={[styles.input, { flex: 1 }]}
@@ -127,7 +163,7 @@ function FormNewRoadBook() {
                     }}
                     style={[styles.saveButton, { paddingHorizontal: 12 }]}
                 >
-                    <Text style={styles.saveText}>Add</Text>
+                    <Text style={styles.saveText}>{t("add.add")}</Text>
                 </Pressable>
             </View>
 
@@ -147,7 +183,7 @@ function FormNewRoadBook() {
             </View>
 
             {/* Tags */}
-            <Text style={styles.label}>Tags</Text>
+            <Text style={styles.label}>{t("add.tagsLabel")}</Text>
             <View style={{ flexDirection: "row", gap: 8 }}>
                 <TextInput
                     style={[styles.input, { flex: 1 }]}
@@ -163,7 +199,7 @@ function FormNewRoadBook() {
                     }}
                     style={[styles.saveButton, { paddingHorizontal: 12 }]}
                 >
-                    <Text style={styles.saveText}>Add</Text>
+                    <Text style={styles.saveText}>{t("add.add")}</Text>
                 </Pressable>
             </View>
 
@@ -181,21 +217,21 @@ function FormNewRoadBook() {
             </View>
 
             {/* Booleans */}
-            <Text style={styles.label}>Is Published</Text>
+            <Text style={styles.label}>{t("add.publishedLabel")}</Text>
             <Pressable
                 onPress={() => setIsPublished(!isPublished)}
                 style={styles.input}
             >
-                <Text>{isPublished ? "Yes" : "No"}</Text>
+                <Text>{isPublished ? t("add.yes") : t("add.no")}</Text>
             </Pressable>
 
-            <Text style={styles.label}>Is Public</Text>
+            <Text style={styles.label}>{t("add.publicLabel")}</Text>
             <Pressable onPress={() => setIsPublic(!isPublic)} style={styles.input}>
-                <Text>{isPublic ? "Yes" : "No"}</Text>
+                <Text>{isPublic ? t("add.yes") : t("add.no")}</Text>
             </Pressable>
 
             {/* Template */}
-            <Text style={styles.label}>Template</Text>
+            <Text style={styles.label}>{t("add.templateLabel")}</Text>
             <TextInput
                 style={styles.input}
                 value={template}
@@ -203,12 +239,16 @@ function FormNewRoadBook() {
             />
 
             {/* Theme */}
-            <Text style={styles.label}>Theme</Text>
+            <Text style={styles.label}>{t("add.themeLabel")}</Text>
             <TextInput style={styles.input} value={theme} onChangeText={setTheme} />
 
             {/* Submit */}
             <Pressable style={styles.saveButton} onPress={onSubmit}>
-                <Text style={styles.saveText}>Create Roadbook</Text>
+                {isSaving ? (
+                    <ActivityIndicator color="black" />
+                ) : (
+                    <Text style={styles.saveText}>{t("add.submit")}</Text>
+                )}
             </Pressable>
         </ScrollView>
     )

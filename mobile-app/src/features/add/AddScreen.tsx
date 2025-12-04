@@ -70,9 +70,8 @@ export default function LibraryScreen() {
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content}>
         <View>
-            <Section
-            title={"Creation"}>
-                <Item label={"RoadBook"} description={"Creation d'un roadbook"}
+            <Section title={t("add.creation")}>
+                <Item label={t("add.createRoadbook")} description={t("add.createRoadbook")}
                       onPress={() => router.push("/form-new-roadbook")} />
                 <Item label={"Point"} description={"Creation d'un lieux"} onPress={() => router.push("/create-place")} />
             </Section>
