@@ -74,7 +74,7 @@ export default function LibraryScreen() {
             title={"Creation"}>
                 <Item label={"RoadBook"} description={"Creation d'un roadbook"}
                       onPress={() => router.push("/form-new-roadbook")} />
-                <Item label={"Point"} description={"Creation d'un lieux"} />
+                <Item label={"Point"} description={"Creation d'un lieux"} onPress={() => router.push("/create-place")} />
             </Section>
         </View>
       </ScrollView>
