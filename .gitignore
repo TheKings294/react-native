@@ -1,0 +1,4 @@
+.idea
+.env.*
+.env
+expo-env.d.ts
